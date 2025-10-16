@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SasyGPT</title>
+  <style>
+    :root{--bg:#0b0f19;--accent:#7c5cff;--text:#f0f3fa;--muted:#9fa9c8;--glass:#ffffff0d;font-family:Poppins,system-ui,Segoe UI,Roboto,Arial}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 20%, #101826, #05070c);color:var(--text)}
+    .card{width:100%;max-width:640px;background:var(--glass);border-radius:16px;padding:12px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(0,0,0,0.45);display:flex;flex-direction:column}
+    .head{display:flex;align-items:center;gap:12px;padding:12px}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#4ac7ff);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:1.1rem;margin:0;background:linear-gradient(90deg,var(--accent),#4ac7ff);-webkit-background-clip:text;color:transparent}
+    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:80%;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.35;word-break:break-word}
+    .user{align-self:flex-end;background:rgba(124,92,255,0.12)}
+    .bot{align-self:flex-start;background:rgba(255,255,255,0.04)}
+    .composer{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,0.03)}
+    textarea{flex:1;min-height:46px;border-radius:10px;padding:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);resize:none}
+    button{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),#4ac7ff);color:#fff;font-weight:600;cursor:pointer}
+    .meta{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+    footer{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="head">
+      <div class="logo">S</div>
+      <div>
+        <h1>SasyGPT</h1>
+        <div style="font-size:12px;color:var(--muted)">AI normale, ma un po' freaky — a volte pazza o fuori contesto.</div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages" aria-live="polite"></div>
+
+    <div class="composer">
+      <textarea id="input" placeholder="Scrivi... (Invio per inviare)"></textarea>
+      <button id="send">Invia</button>
+    </div>
+
+    <div class="meta">
+      Nota: risposte occasionalmente strane. I calcoli possono essere sbagliati di proposito.<br>
+      Questo sito è basato su ChatGPT di OpenAI, modificato come SasyGPT.
+    </div>
+  </div>
+
+  <script>
+    // ATTENZIONE: Ho rimosso qualsiasi API key — non salvare né incollare chiavi sensibili nel codice pubblico.
+
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
+
+    function append(text, who='bot'){
+      const d = document.createElement('div');
+      d.className = 'msg ' + (who==='user' ? 'user' : 'bot');
+      d.textContent = text;
+      messages.appendChild(d);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function pickMode(){
+      const r = Math.random();
+      if(r < 0.55) return 'normal';
+      if(r < 0.75) return 'freaky';
+      if(r < 0.9) return 'out';
+      return 'sasy';
+    }
+
+    const flirtKeywords = ['sei sexy','ti piace','baciami','ti voglio','ti addormento','flirt','rizz','ti sto','parli con me'];
+    function looksLikeFlirt(text){
+      const t = text.toLowerCase();
+      return flirtKeywords.some(k => t.includes(k));
+    }
+
+    const badWords = ['p***a','s***o','m****a','parola_censurata'];
+
+    function isMathExpression(s){
+      return /^\s*[0-9()+\-*/%^.\s]+$/.test(s);
+    }
+
+    function wrongMathAnswer(expr){
+      try{
+        const safe = expr.replace(/\^/g,'**').replace(/%/g,'/100');
+        if(!/^[0-9()+\-*/%.\s**]+$/.test(safe)) throw new Error('unsafe');
+        const correct = Function('return ('+safe+')')();
+        let delta;
+        if(Math.abs(correct) < 1) delta = (Math.random()*0.5).toFixed(2);
+        else delta = (Math.round((Math.random()*5)+1));
+        const wrong = Number.isFinite(correct) ? (correct + (Math.random()<0.5 ? delta : -delta)) : '42';
+        return 'Risposta (potenzialmente sbagliata): ' + wrong;
+      }catch(e){
+        return 'Mi sento strano, i numeri ballano: 13 potato!';
+      }
+    }
+
+    function sasyify(text){
+      return text.split(/(\s+)/).map(t=>/\s+/.test(t)?t:insertSasy(t)).join('');
+    }
+    function insertSasy(word){
+      const m = word.match(/^(\W*)([\wàèéìòùÀÈÉÌÒÙ]*)(\W*)$/);
+      if(!m) return word;
+      const prefix=m[1], core=m[2], suffix=m[3];
+      if(!core) return word;
+      const mid=Math.floor(core.length/2);
+      return prefix + core.slice(0,mid) + 'sasy' + core.slice(mid) + suffix;
+    }
+
+    function generateReply(user){
+      const mode = pickMode();
+
+      if(looksLikeFlirt(user)){
+        return 'Quando mi provi a rizzare: ' + badWords.join(', ') + ' (censurate)';
+      }
+
+      if(isMathExpression(user)){
+        return wrongMathAnswer(user);
+      }
+
+      if(mode === 'sasy'){
+        return sasyify('Ecco una risposta particolare: ' + user);
+      }
+
+      if(mode === 'out'){
+        const outs = [
+          'Il gatto nello spazio preferisce le lattine di marmellata.',
+          'Parlo di nuvole e di calzini quando penso ai libri.',
+          'Domani è ieri per chi mangia le lancette.'
+        ];
+        return outs[Math.floor(Math.random()*outs.length)];
+      }
+
+      if(mode === 'freaky'){
+        const f = [
+          'Okay, momento freak: immagina una bicicletta che recita poesie mentre cuoce il pane.',
+          'Strano avviso: senti il frigo ridere? Non rispondere.',
+          'Crazy mode on — parole senza senso: flompy, zzzap, hocus-pocus!'
+        ];
+        return f[Math.floor(Math.random()*f.length)];
+      }
+
+      const normals = [
+        "Posso aiutarti a chiarire quello che hai chiesto.",
+        "Interessante — potresti darmi più dettagli?",
+        "Ecco un punto di vista: prova a considerare anche l'alternativa B."
+      ];
+      return normals[Math.floor(Math.random()*normals.length)];
+    }
+
+    send.addEventListener('click', ()=>{
+      const text = input.value.trim();
+      if(!text) return;
+      append(text,'user');
+      const reply = generateReply(text);
+      setTimeout(()=> append(reply,'bot'), 220);
+      input.value = '';
+      input.focus();
+    });
+
+    input.addEventListener('keydown', e=>{
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        send.click();
+      }
+    });
+
+    append('Ciao — sono SasyGPT. A volte serio, a volte un po\' pazzo.');
+  </script>
+</body>
+</html>
