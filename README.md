@@ -1,6 +1,6 @@
 # SasyGPT
 
-# SasyGPT v2.5 e' ora stata rilasciato!
+# SasyGPT v2.5 e' ora stato rilasciato!
 
 ## Ora basato su Gemini di Google!
 Ora e' interamente basato su Gemini e non su ChatGPT con api dall'utente.
