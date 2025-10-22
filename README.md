@@ -10,4 +10,4 @@ Quindi ora e' tutto gratis.
 Vedi le modifiche fatte al sito
 
 ## Aggiunta la possibilita' di generare immagini
-Ora puoi generare immagini di sassi con Imagine 4 di Google.
+Ora puoi generare immagini di sassi con Imagen 4 di Google.
