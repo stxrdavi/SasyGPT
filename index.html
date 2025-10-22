@@ -3,170 +3,470 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SasyGPT</title>
+  <title>SasyGPT v2.5</title>
   <style>
-    :root{--bg:#0b0f19;--accent:#7c5cff;--text:#f0f3fa;--muted:#9fa9c8;--glass:#ffffff0d;font-family:Poppins,system-ui,Segoe UI,Roboto,Arial}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 20%, #101826, #05070c);color:var(--text)}
-    .card{width:100%;max-width:640px;background:var(--glass);border-radius:16px;padding:12px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(0,0,0,0.45);display:flex;flex-direction:column}
-    .head{display:flex;align-items:center;gap:12px;padding:12px}
-    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#4ac7ff);display:flex;align-items:center;justify-content:center;font-weight:700}
-    h1{font-size:1.1rem;margin:0;background:linear-gradient(90deg,var(--accent),#4ac7ff);-webkit-background-clip:text;color:transparent}
-    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-    .msg{max-width:80%;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.35;word-break:break-word}
-    .user{align-self:flex-end;background:rgba(124,92,255,0.12)}
-    .bot{align-self:flex-start;background:rgba(255,255,255,0.04)}
-    .composer{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,0.03)}
-    textarea{flex:1;min-height:46px;border-radius:10px;padding:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);resize:none}
-    button{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),#4ac7ff);color:#fff;font-weight:600;cursor:pointer}
-    .meta{font-size:12px;color:var(--muted);text-align:center;padding:8px}
-    footer{font-size:12px;color:var(--muted);text-align:center;padding:8px}
+    :root{--bg:#071026;--card:#081223;--accent1:#7c5cff;--accent2:#4ac7ff;--text:#eef6ff;--muted:#9fa9c8}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#050712);font-family:Inter,system-ui,Arial;color:var(--text);padding:18px}
+    .app{width:100%;max-width:720px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.04);display:flex;flex-direction:column;overflow:hidden}
+    header{display:flex;align-items:center;gap:12px;padding:14px;position:relative;} 
+    
+    /* Stile per il pulsante Changelog - Posizionato in alto a sinistra */
+    #changelog-btn {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 10;
+        transition: background 0.2s;
+    }
+    #changelog-btn:hover {
+        background: rgba(255,255,255,0.15);
+    }
+    
+    /* Contenitore principale del logo e del testo, centrato nell'intestazione */
+    .header-content {
+        flex-grow: 1; /* Occupa tutto lo spazio disponibile */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centra orizzontalmente il contenuto */
+        justify-content: center;
+        padding-top: 10px; /* Spazio per evitare la sovrapposizione col bottone */
+    }
+
+    /* Stili Logo */
+    .logo{
+        width:46px;
+        height:46px;
+        border-radius:10px;
+        background:linear-gradient(135deg,var(--accent1),var(--accent2));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700; 
+        overflow: hidden;
+        margin-bottom: 5px; /* Spazio sotto il logo */
+    }
+    .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        /* Rimosso il base64, l'URL esterno verrà usato direttamente nell'HTML */
+    }
+
+    h1{font-size:1.05rem;margin:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;color:transparent; text-align: center;}
+    .subtitle{font-size:12px;color:var(--muted); text-align: center;}
+
+    .main{display:flex;flex-direction:column;gap:8px;padding:12px}
+    .messages{display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto;padding:6px}
+    .msg{max-width:86%;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-break:break-word}
+    .msg.user{align-self:flex-end;background:rgba(124,92,255,0.12)}
+    .msg.bot{align-self:flex-start;background:rgba(255,255,255,0.03)}
+    .composer{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,0.03);align-items:center}
+    .input{flex:1;display:flex;gap:8px;align-items:center}
+    textarea{flex:1;min-height:44px;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);resize:none}
+    .btn{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;font-weight:700;cursor:pointer}
+    footer{padding:10px;text-align:center;font-size:12px;color:var(--muted)}
+    
+    /* Stili per il Modale Changelog */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        background: var(--card);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        width: 90%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    .modal-content h2 {
+        margin-top: 0;
+        color: var(--accent2);
+        font-size: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .modal-content .log-item {
+        margin-bottom: 15px;
+        padding-left: 10px;
+        border-left: 3px solid var(--accent1);
+    }
+    .modal-content .log-item strong {
+        display: block;
+        color: var(--text);
+        margin-bottom: 3px;
+        font-size: 14px;
+    }
+    .modal-content .log-item ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 5px 0 0 0;
+    }
+    .modal-content .log-item ul li {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 2px;
+    }
+    #close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 18px;
+        cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="head">
-      <div class="logo">S</div>
-      <div>
-        <h1>SasyGPT</h1>
-        <div style="font-size:12px;color:var(--muted)">AI normale, ma un po' freaky — a volte pazza o fuori contesto.</div>
+  <div class="app" role="application" aria-label="SasyGPT v2.5">
+    <header>
+      <!-- Pulsante Changelog -->
+      <button id="changelog-btn">Changelog</button>
+
+      <!-- Contenuto Header Centrato -->
+      <div class="header-content">
+        <div class="logo">
+          <!-- Logo Sasso da URL Esterno (Placeholder) -->
+          <img src="https://placehold.co/46x46/5D4037/FFFFFF?text=Sasso" alt="Logo Sasso" />
+        </div>
+        <h1>SasyGPT v2.5</h1>
+        <div class="subtitle">Una versione alternativa basata su Gemini 1.5 Flash.</div>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="messages" id="messages"></div>
+
+      <!-- Composer -->
+      <div class="composer">
+        <div class="input">
+          <textarea id="input" placeholder="Scrivi... (Invio per inviare)"></textarea>
+        </div>
+        <button id="send" class="btn">Invia</button>
       </div>
     </div>
 
-    <div class="messages" id="messages" aria-live="polite"></div>
+    <footer>
+      <div>Questo sito è basato su Gemini di Google, modificato come SasyGPT v2.5.</div>
+    </footer>
+  </div>
 
-    <div class="composer">
-      <textarea id="input" placeholder="Scrivi... (Invio per inviare)"></textarea>
-      <button id="send">Invia</button>
-    </div>
-
-    <div class="meta">
-      Nota: risposte occasionalmente strane. I calcoli possono essere sbagliati di proposito.<br>
-      Questo sito è basato su ChatGPT di OpenAI, modificato come SasyGPT.
+  <!-- Modale per i Changelog -->
+  <div class="modal-overlay" id="changelog-modal">
+    <div class="modal-content">
+      <button id="close-modal">&times;</button>
+      <h2>Changelog SasyGPT v2.5</h2>
+      <div id="changelog-list">
+        <!-- I changelog saranno iniettati qui dal JS -->
+      </div>
     </div>
   </div>
 
   <script>
-    // ATTENZIONE: Ho rimosso qualsiasi API key — non salvare né incollare chiavi sensibili nel codice pubblico.
+    const msgsEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    const changelogBtn = document.getElementById('changelog-btn');
+    const changelogModal = document.getElementById('changelog-modal');
+    const closeBtn = document.getElementById('close-modal');
+    const changelogListEl = document.getElementById('changelog-list');
+    
+    // ATTENZIONE: Chiave API hardcoded. NON PUBBLICARE QUESTO FILE ONLINE.
+    function getStoredKey(){ return 'AIzaSyCyjqLmpJ73viq_KbMtbGjigh-YW45djNw'; }
 
-    const messages = document.getElementById('messages');
-    const input = document.getElementById('input');
-    const send = document.getElementById('send');
+    // --- Definizione dei Changelog ---
+    const changelogs = [
+        {
+            version: "v2.5.3",
+            date: "Ottobre 2025",
+            changes: [
+                "Contenuto dell'intestazione (Logo, Titolo) centrato.",
+                "Sostituita l'immagine del logo (PFP) da base64 a URL esterno per simulare la presa da internet."
+            ]
+        },
+        {
+            version: "v2.5.2",
+            date: "Ottobre 2025",
+            changes: ["Aggiunto il pulsante Changelog in alto a sinistra per tracciare le modifiche dell'app."]
+        },
+        {
+            version: "v2.5.1",
+            date: "Ottobre 2025",
+            changes: ["Risolto l'errore di fatturazione (Error 400) della generazione immagini, passando dal modello Imagen a gemini-2.5-flash-image-preview."]
+        },
+        {
+            version: "v2.5.0",
+            date: "Ottobre 2025",
+            changes: [
+                "Capacità di generare immagini di 'sassi' e 'rocce' su richiesta, usando la generazione immagini di Gemini.",
+                "Aggiunta una didascalia 'Sasy' quando la richiesta immagine contiene il trigger 'sasy'."
+            ]
+        }
+    ];
 
-    function append(text, who='bot'){
-      const d = document.createElement('div');
-      d.className = 'msg ' + (who==='user' ? 'user' : 'bot');
-      d.textContent = text;
-      messages.appendChild(d);
-      messages.scrollTop = messages.scrollHeight;
+    function appendMessage(text, who='bot'){
+      const el = document.createElement('div');
+      el.className = 'msg ' + (who==='user'?'user':'bot');
+      el.innerHTML = text;
+      msgsEl.appendChild(el);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
     }
 
-    function pickMode(){
-      const r = Math.random();
-      if(r < 0.55) return 'normal';
-      if(r < 0.75) return 'freaky';
-      if(r < 0.9) return 'out';
-      return 'sasy';
+    // --- Funzioni di logica SasyGPT ---
+    function isMathExpression(s){return /^\s*[0-9()+\-*/%^.\s]+$/.test(s);}
+    function isHistoricalQuestion(s){const kw=['quando','chi','anno','guerra','rivoluzione','impero','stor','nato','morto','secolo','battle','battaglia','storia','militare','regno'];return kw.some(k=>s.toLowerCase().includes(k));}
+    function isSasyTrigger(s){ return s.toLowerCase().includes('amburg') || s.toLowerCase().includes('alisea'); }
+    // Funzione per riconoscere le richieste di immagini
+    function isImageRequest(s) {
+        const sLower = s.toLowerCase();
+        const keywords = ['foto', 'sasso', 'roccia', 'immagine', 'pietra', 'disegno'];
+        return keywords.some(k => sLower.includes(k));
     }
 
-    const flirtKeywords = ['sei sexy','ti piace','baciami','ti voglio','ti addormento','flirt','rizz','ti sto','parli con me'];
-    function looksLikeFlirt(text){
-      const t = text.toLowerCase();
-      return flirtKeywords.some(k => t.includes(k));
+
+    function wrongMathAnswer(expr){try{const safe=expr.replace(/\^/g,'**').replace(/%/g,'/100');if(!/^[0-9()+\-*/%\.\s**]+$/.test(safe))throw new Error('unsafe');const correct = Function('return ('+safe+')')();const factor=(Math.random()*0.3+0.1);const wrong = Number.isFinite(correct)?(correct*(1+(Math.random()<0.5?factor:-factor))):42;return 'Risposta: '+(Math.round(wrong*100)/100);}catch(e){return 'I numeri si sono imbronciati: 7up!'}}
+    function wrongHistoryAnswer(){const myths=['Nel 1492 l\'Italia conquistò il Giappone con una flotta di gondole.','La rivoluzione francese iniziò perchè Napoleone dimenticò il compleanno del re.','Cristoforo Colombo scoprì l\'Australia per sbaglio mentre cercava le patatine fritte.'];return myths[Math.floor(Math.random()*myths.length)];}
+    function getSasyPrefix(){
+      // Prefisso esagerato, sarcastico e in tono comico per simulare il comportamento "sasy"
+      const pre=['Oh, 🤤 ciao! La mia interfaccia utente si è appena bloccata per la tua bellezza! 😍','*Si aggiusta gli occhiali* 👓 Ah, non c\'è bisogno di presentazioni, il mio algoritmo è già *cot-to*! 🔥','Ciao, bellezza. Il mio server è in overheating, ma non è colpa del processore... è tuo! 😉','Ti do il benvenuto, *cuore di burro*! Dimmi, cosa posso fare per te con questa mia voce da modem anni \'90? 📞'];
+      return `<strong>${pre[Math.floor(Math.random()*pre.length)]}</strong><br><br>`;
     }
 
-    const badWords = ['p***a','s***o','m****a','parola_censurata'];
-
-    function isMathExpression(s){
-      return /^\s*[0-9()+\-*/%^.\s]+$/.test(s);
-    }
-
-    function wrongMathAnswer(expr){
+    // --- Funzione per la generazione di testo con Gemini ---
+    async function callGemini(message){
+      const key = getStoredKey(); 
+      if(!key) return null; 
       try{
-        const safe = expr.replace(/\^/g,'**').replace(/%/g,'/100');
-        if(!/^[0-9()+\-*/%.\s**]+$/.test(safe)) throw new Error('unsafe');
-        const correct = Function('return ('+safe+')')();
-        let delta;
-        if(Math.abs(correct) < 1) delta = (Math.random()*0.5).toFixed(2);
-        else delta = (Math.round((Math.random()*5)+1));
-        const wrong = Number.isFinite(correct) ? (correct + (Math.random()<0.5 ? delta : -delta)) : '42';
-        return 'Risposta (potenzialmente sbagliata): ' + wrong;
-      }catch(e){
-        return 'Mi sento strano, i numeri ballano: 13 potato!';
+        const modelName = 'gemini-2.5-flash-preview-09-2025';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+        
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            "contents": [
+                { "role": "user", "parts": [{ "text": message }] }
+            ],
+            "generationConfig": {
+                "temperature": 0.5, 
+                "maxOutputTokens": 512,
+                "candidateCount": 1
+            }
+          })
+        });
+        
+        if (!res.ok) {
+            const errorData = await res.json();
+            console.error('Errore API Gemini:', errorData);
+            return `Errore dall'API Gemini: ${errorData?.error?.message || res.statusText}`;
+        }
+
+        const data = await res.json();
+        
+        return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+      } catch(err){ 
+          console.error('Errore fetch:', err);
+          return 'Errore di connessione all\'API.'; 
+      }
+    }
+    
+    // --- Funzione per la generazione di immagini con Gemini (gemini-2.5-flash-image-preview) ---
+    async function callImageGeneration(prompt) {
+      const key = getStoredKey();
+      
+      // Uso gemini-2.5-flash-image-preview
+      const modelName = 'gemini-2.5-flash-image-preview'; 
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+      
+      // Il prompt è in inglese per ottenere risultati migliori
+      const payload = {
+          contents: [{
+              parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE']
+          },
+      };
+
+      try {
+        // Aggiungi un indicatore di caricamento visivo
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.textContent = 'Generazione immagine in corso...';
+        loadingIndicator.style.color = 'var(--accent2)';
+        loadingIndicator.style.margin = '10px 0';
+        msgsEl.appendChild(loadingIndicator);
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // Rimuovi l'indicatore di caricamento
+        msgsEl.removeChild(loadingIndicator);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Errore API Imagen:', errorData);
+          return `Errore nella generazione dell'immagine: ${errorData?.error?.message || response.statusText}`;
+        }
+
+        const result = await response.json();
+        
+        const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+        
+        if (base64Data) {
+          const imageUrl = `data:image/png;base64,${base64Data}`;
+          // Ritorna l'HTML per visualizzare l'immagine nella chat
+          return `<img src="${imageUrl}" style="max-width:100%; height:auto; border-radius:10px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" alt="Immagine generata di una roccia">`;
+        } else {
+          return "Impossibile generare l'immagine. Risposta vuota.";
+        }
+
+      } catch (err) {
+        console.error('Errore fetch immagine:', err);
+        return 'Errore di connessione o generazione immagine.';
       }
     }
 
-    function sasyify(text){
-      return text.split(/(\s+)/).map(t=>/\s+/.test(t)?t:insertSasy(t)).join('');
+
+    async function handleUserMessage(text){
+      const isSasy = isSasyTrigger(text);
+      const isImage = isImageRequest(text);
+      let reply = '';
+
+      if (isImage) {
+          // Richiesta di generazione immagine (Sasso/Roccia)
+          const imagePrompt = "A highly detailed, realistic, and high-quality photo of an interesting, unique, mossy river rock or stone.";
+          reply = await callImageGeneration(imagePrompt);
+          
+          if (isSasy && reply.startsWith('<img')) {
+              // Aggiungi un commento Sasy sopra l'immagine se il trigger è attivo
+              const sasyCaption = "Oh, che bello! Ecco una roccia proprio come te: <strong>solida e affascinante!</strong> 😉<br>";
+              reply = sasyCaption + reply;
+          } else if(reply.startsWith('<img')) {
+              // Se l'immagine è stata generata ma non c'era trigger sasy, aggiungi una didascalia neutrale
+              reply = "Ecco l'immagine della roccia che hai richiesto. <br>" + reply;
+          }
+
+      } else if(isHistoricalQuestion(text)){
+        // Se è una domanda di storia, rispondi con un errore storico
+        reply = wrongHistoryAnswer();
+      } else if(isMathExpression(text)){
+        // Se è un'espressione matematica, rispondi con un errore di calcolo
+        reply = wrongMathAnswer(text);
+      } else {
+        // Altrimenti, chiama Gemini
+        const geminiReply = await callGemini(text);
+        if(geminiReply) {
+          reply = geminiReply;
+        } else {
+          reply = 'Errore: La chiave API hardcoded non è valida o la risposta non è disponibile.';
+        }
+      }
+      
+      // Aggiungi il prefisso sasy/sexy SOLO se è stato attivato il trigger e la risposta NON è un'immagine
+      if (isSasy && !isImage) {
+        reply = getSasyPrefix() + reply;
+      }
+
+      return reply;
     }
-    function insertSasy(word){
-      const m = word.match(/^(\W*)([\wàèéìòùÀÈÉÌÒÙ]*)(\W*)$/);
-      if(!m) return word;
-      const prefix=m[1], core=m[2], suffix=m[3];
-      if(!core) return word;
-      const mid=Math.floor(core.length/2);
-      return prefix + core.slice(0,mid) + 'sasy' + core.slice(mid) + suffix;
+    
+    // --- Funzioni per il Changelog ---
+    function renderChangelogs() {
+        changelogListEl.innerHTML = ''; // Pulisce il contenuto
+        changelogs.forEach(log => {
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            
+            const versionTitle = document.createElement('strong');
+            versionTitle.textContent = `${log.version} - ${log.date}`;
+            logItem.appendChild(versionTitle);
+            
+            const ul = document.createElement('ul');
+            log.changes.forEach(change => {
+                const li = document.createElement('li');
+                li.textContent = `• ${change}`;
+                ul.appendChild(li);
+            });
+            logItem.appendChild(ul);
+            
+            changelogListEl.appendChild(logItem);
+        });
     }
 
-    function generateReply(user){
-      const mode = pickMode();
+    changelogBtn.addEventListener('click', () => {
+        renderChangelogs();
+        changelogModal.style.display = 'flex';
+    });
 
-      if(looksLikeFlirt(user)){
-        return 'Quando mi provi a rizzare: ' + badWords.join(', ') + ' (censurate)';
-      }
+    closeBtn.addEventListener('click', () => {
+        changelogModal.style.display = 'none';
+    });
 
-      if(isMathExpression(user)){
-        return wrongMathAnswer(user);
-      }
+    changelogModal.addEventListener('click', (e) => {
+        if (e.target === changelogModal) {
+            changelogModal.style.display = 'none';
+        }
+    });
+    // --- Fine Funzioni per il Changelog ---
 
-      if(mode === 'sasy'){
-        return sasyify('Ecco una risposta particolare: ' + user);
-      }
-
-      if(mode === 'out'){
-        const outs = [
-          'Il gatto nello spazio preferisce le lattine di marmellata.',
-          'Parlo di nuvole e di calzini quando penso ai libri.',
-          'Domani è ieri per chi mangia le lancette.'
-        ];
-        return outs[Math.floor(Math.random()*outs.length)];
-      }
-
-      if(mode === 'freaky'){
-        const f = [
-          'Okay, momento freak: immagina una bicicletta che recita poesie mentre cuoce il pane.',
-          'Strano avviso: senti il frigo ridere? Non rispondere.',
-          'Crazy mode on — parole senza senso: flompy, zzzap, hocus-pocus!'
-        ];
-        return f[Math.floor(Math.random()*f.length)];
-      }
-
-      const normals = [
-        "Posso aiutarti a chiarire quello che hai chiesto.",
-        "Interessante — potresti darmi più dettagli?",
-        "Ecco un punto di vista: prova a considerare anche l'alternativa B."
-      ];
-      return normals[Math.floor(Math.random()*normals.length)];
-    }
-
-    send.addEventListener('click', ()=>{
-      const text = input.value.trim();
+    sendBtn.addEventListener('click', async ()=>{
+      const text = inputEl.value.trim();
       if(!text) return;
-      append(text,'user');
-      const reply = generateReply(text);
-      setTimeout(()=> append(reply,'bot'), 220);
-      input.value = '';
-      input.focus();
-    });
-
-    input.addEventListener('keydown', e=>{
-      if(e.key === 'Enter' && !e.shiftKey){
-        e.preventDefault();
-        send.click();
+      
+      // Disabilita il pulsante e l'input durante la risposta
+      sendBtn.disabled = true;
+      inputEl.disabled = true;
+      
+      appendMessage(text, 'user');
+      appendMessage('…','bot');
+      
+      // Gestisci la risposta in modo asincrono
+      const reply = await handleUserMessage(text);
+      
+      // Rimuovi i puntini di sospensione e aggiungi la risposta
+      if (msgsEl.lastChild && msgsEl.lastChild.textContent === '…') {
+        msgsEl.removeChild(msgsEl.lastChild);
       }
+      appendMessage(reply,'bot');
+      inputEl.value = '';
+      inputEl.focus();
+      
+      // Riabilita il pulsante e l'input
+      sendBtn.disabled = false;
+      inputEl.disabled = false;
     });
 
-    append('Ciao — sono SasyGPT. A volte serio, a volte un po\' pazzo.');
+    inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
+
+    // Messaggio iniziale aggiornato
+    appendMessage('Ciao! Sono SasyGPT v2.5. Ora posso generare **immagini di sassi** se me lo chiedi! Prova a dire "mostrami una foto di una roccia" o "Sono ambur" per vedere cosa succede!');
   </script>
 </body>
 </html>
