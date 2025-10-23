@@ -3,424 +3,654 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SasyGPT v3</title>
+  <title>SasyGPT v3.5 - Liquid Glass Dark Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          // Palette scura e accentata
+          colors: {
+            'bg-dark': '#0F172A', // Sfondo molto scuro (Slate-900)
+            'bg-glass': 'rgba(30, 41, 59, 0.6)', // Base per il vetro (Slate-800 con trasparenza)
+            'accent': '#8B5CF6', // Viola brillante (Violet-500)
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'Arial'],
+          },
+        }
+      }
+    }
+  </script>
   <style>
-    :root{--bg:#050a1b;--card:#0a1533;--accent1:#ff7c5c;--accent2:#ff4a7d;--text:#eef6ff;--muted:#9fa9c8;--glass-bg:rgba(255,255,255,0.025);--glass-border:rgba(255,255,255,0.08)}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#02040c);font-family:Inter,system-ui,Arial;color:var(--text);padding:18px}
-    
-    /* Contenitore App: Effetto Liquid Glass potenziato */
-    .app{
-        width:100%;
-        max-width:720px;
-        border-radius:18px;
-        background:var(--glass-bg);
-        backdrop-filter:blur(16px); /* Aumento della sfocatura */
-        box-shadow:0 15px 50px rgba(0,0,0,0.7);
-        border:1px solid var(--glass-border);
-        display:flex;
-        flex-direction:column;
-        overflow:hidden;
-        transition: box-shadow 0.3s ease;
-    }
-    .app:hover {
-        box-shadow: 0 15px 60px rgba(255,124,92,0.15); /* Soft glow on hover */
-    }
-
-    header{display:flex;align-items:center;gap:12px;padding:18px;position:relative; border-bottom: 1px solid var(--glass-border);} 
-    
-    /* Stile per il pulsante Changelog - Posizionato in alto a sinistra */
-    #changelog-btn {
-        position: absolute;
-        left: 18px;
-        top: 18px;
-        padding: 6px 10px;
-        border-radius: 8px;
-        border: 1px solid var(--glass-border);
-        background: rgba(255,255,255,0.05);
-        color: var(--text);
-        font-size: 12px;
-        cursor: pointer;
-        z-index: 10;
-        transition: background 0.2s;
-        backdrop-filter: blur(5px);
-    }
-    #changelog-btn:hover {
-        background: rgba(255,255,255,0.15);
+    /* ----------------------------------- */
+    /* STILI CORE GLASSMORPHISM / DARK MODE */
+    /* ----------------------------------- */
+    body {
+      background-color: #0F172A; /* Slate-900 */
+      color: #E2E8F0; /* Slate-200 */
+      font-family: 'Inter', system-ui, Arial;
     }
     
-    /* Contenitore principale del logo e del testo, centrato nell'intestazione */
-    .header-content {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column;
-        align-items: center; 
-        justify-content: center;
+    /* Card/Container Principale (Liquid Glass) */
+    .glass-card {
+        background: var(--tw-colors-bg-glass); 
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1); /* Bordo sottile di luce */
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        border-radius: 24px;
+        transition: all 0.3s ease;
     }
 
-    /* Stili Logo */
-    .logo{
-        width:50px; /* Leggermente più grande */
-        height:50px;
-        border-radius:50%; /* Tondo come una PFP */
-        background:linear-gradient(135deg,var(--accent1),var(--accent2));
-        overflow: hidden;
-        margin-bottom: 8px; 
-        box-shadow: 0 0 10px rgba(255,74,125,0.4); /* Piccola luce */
-        border: 2px solid var(--glass-border);
-    }
-    .logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    h1{font-size:1.4rem;margin:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;color:transparent; text-align: center;}
-    .subtitle{font-size:12px;color:var(--muted); text-align: center; margin-top: 3px;}
-
-    .main{display:flex;flex-direction:column;gap:8px;padding:15px;}
-    .messages{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;padding:6px; scrollbar-width: none; /* Firefox */ -ms-overflow-style: none; /* IE and Edge */}
-    .messages::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
-
-    .msg{
-        max-width:88%;
-        padding:12px 16px;
-        border-radius:16px;
-        font-size:15px;
-        line-height:1.5;
-        word-break:break-word;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .msg.user{
-        align-self:flex-end;
-        background:linear-gradient(145deg, rgba(124,92,255,0.15), rgba(124,92,255,0.05));
-        border-bottom-right-radius: 4px; /* Taglio leggero */
-    }
-    .msg.bot{
-        align-self:flex-start;
-        background:rgba(255,255,255,0.05);
-        border-bottom-left-radius: 4px; /* Taglio leggero */
-        border: 1px solid var(--glass-border);
-    }
-    .composer{display:flex;gap:10px;padding:15px;border-top:1px solid var(--glass-border);align-items:center}
-    .input{flex:1;display:flex;gap:8px;align-items:center}
-    textarea{
-        flex:1;
-        min-height:50px;
-        padding:12px;
-        border-radius:12px;
-        border:1px solid var(--glass-border);
-        background:rgba(255,255,255,0.03);
-        color:var(--text);
-        resize:none;
+    /* Pulsante Standard (Glassy) */
+    .glass-button {
+        background: rgba(255, 255, 255, 0.1); 
+        border: 1px solid rgba(255, 255, 255, 0.15);
         transition: all 0.2s;
     }
-    textarea:focus {
-        background: rgba(255,255,255,0.06);
-        box-shadow: 0 0 8px rgba(255,74,125,0.3);
-        outline: none;
+    .glass-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .glass-button:active {
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        transform: scale(0.98);
     }
 
-    .btn{
-        padding:12px 18px;
-        border-radius:12px;
-        border:none;
-        background:linear-gradient(45deg,var(--accent1),var(--accent2));
-        color:white;
-        font-weight:700;
-        cursor:pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
+    /* Pulsante Accent (Send/Mic) - Pieno per contrasto */
+    .glass-accent-btn {
+        background-color: var(--tw-colors-accent); 
+        color: white;
+        box-shadow: 0 4px 15px var(--tw-colors-accent);
+        transition: all 0.2s;
     }
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255,74,125,0.4);
+    .glass-accent-btn:active {
+        background-color: #6D28D9; /* Viola più scuro al click */
+        box-shadow: 0 0 5px var(--tw-colors-accent);
+        transform: scale(0.98);
     }
 
-    footer{padding:10px;text-align:center;font-size:11px;color:var(--muted); border-top: 1px solid var(--glass-border);}
+    /* Input/Textarea */
+    .glass-input {
+        background: rgba(0, 0, 0, 0.3); /* Base scura per l'input */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: border-color 0.2s;
+    }
+    .glass-input:focus {
+        border-color: var(--tw-colors-accent);
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Messaggi */
+    .msg.bot {
+      background: rgba(30, 41, 59, 0.8); /* Bot: leggermente più opaco */
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #E2E8F0;
+    }
+    .msg.user {
+      background: rgba(139, 92, 246, 0.8); /* User: Viola accentato */
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Scrollbar invisibile */
+    .messages::-webkit-scrollbar { display: none; }
+    .messages { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Stili per il Modale Changelog */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 100;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(5px);
+    /* Animazione Microfono */
+    .mic-listening {
+      animation: pulse-mic 1s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      box-shadow: 0 0 25px var(--tw-colors-accent) !important;
     }
-    .modal-content {
-        background: var(--card);
-        padding: 25px;
-        border-radius: 18px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
-        width: 90%;
-        max-width: 450px;
-        max-height: 80vh;
-        overflow-y: auto;
-        position: relative;
-        border: 1px solid var(--glass-border);
-    }
-    .modal-content h2 {
-        margin-top: 0;
-        color: var(--accent1);
-        font-size: 1.6rem;
-        border-bottom: 1px solid var(--glass-border);
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
-    .modal-content .log-item {
-        margin-bottom: 18px;
-        padding-left: 10px;
-        border-left: 3px solid var(--accent2);
-    }
-    .modal-content .log-item strong {
-        display: block;
-        color: var(--text);
-        margin-bottom: 5px;
-        font-size: 15px;
-    }
-    .modal-content .log-item ul {
-        list-style: none;
-        padding-left: 0;
-        margin: 5px 0 0 0;
-    }
-    .modal-content .log-item ul li {
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 2px;
-    }
-    #close-modal {
-        position: absolute;
-        top: 15px;
-        right: 18px;
-        background: none;
-        border: none;
-        color: var(--muted);
-        font-size: 24px;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    #close-modal:hover {
-        color: var(--accent2);
+    @keyframes pulse-mic {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
-<body>
-  <div class="app" role="application" aria-label="SasyGPT v3">
-    <header>
-      <!-- Pulsante Changelog --><button id="changelog-btn">Changelog</button>
+<body class="p-4 flex items-center justify-center min-h-screen">
 
-      <!-- Contenuto Header Centrato --><div class="header-content">
-        <div class="logo">
-          <!-- Logo Sasso da URL Esterno (Placeholder) --><img src="https://placehold.co/50x50/5D4037/FFFFFF?text=Sasso" alt="Logo Sasso" />
+  <!-- VISTA PRINCIPALE CHAT (Liquid Glass Card) -->
+  <div id="main-chat-view" class="app w-full max-w-4xl glass-card text-white shadow-xl transition-all duration-300">
+    
+    <!-- Header pulito e compatto -->
+    <header class="p-4 flex items-center justify-between border-b border-white/10 relative rounded-t-[24px]">
+        <div class="flex items-center">
+            <!-- Logo con colore accentato -->
+            <div class="w-8 h-8 rounded-full bg-accent text-white overflow-hidden mr-3 flex items-center justify-center shadow-lg ring-2 ring-accent/50">
+                <span class="text-lg font-bold">S</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-extrabold text-white">SasyGPT v3.5</h1>
+                <div class="text-xs text-gray-400">Modello Gemini • Glass Mode</div>
+            </div>
         </div>
-        <h1>SasyGPT v3</h1>
-        <div class="subtitle">Una versione alternativa basata su Gemini 1.5 Flash.</div>
-      </div>
+        <div class="flex space-x-3">
+            <!-- Pulsante Live Mode -->
+             <button id="live-mode-switch-btn" title="Apri Live Mode (Visione/Voce)"
+                class="w-10 h-10 rounded-full glass-button flex items-center justify-center text-accent hover:text-white">
+                <!-- Icona Microfono per Live/Vision -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-2.21 1.79-4 4-4s4 1.79 4 4v6zm-4 7c2.76 0 5-2.24 5-5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H7c0 2.76 2.24 5 5 5v3h2v-3z"/></svg>
+            </button>
+            <button id="changelog-btn" title="Mostra Changelog"
+                class="px-3 py-1 text-sm rounded-xl glass-button text-gray-300">Log</button>
+        </div>
     </header>
 
-    <div class="main">
-      <div class="messages" id="messages"></div>
-
-      <!-- Composer --><div class="composer">
-        <div class="input">
-          <textarea id="input" placeholder="Scrivi... (Invio per inviare)"></textarea>
-        </div>
-        <button id="send" class="btn">Invia</button>
+    <!-- Messaggi -->
+    <div class="main p-5 flex flex-col h-[65vh] bg-transparent">
+      <div id="messages" class="messages flex flex-col gap-3 flex-grow overflow-y-auto pb-4">
+        <!-- I messaggi verranno iniettati qui -->
       </div>
     </div>
 
-    <footer>
-      <div>Questo sito è basato su Gemini di Google, modificato come SasyGPT v3.</div>
-    </footer>
+    <!-- Composer (Area di Input) -->
+    <div class="composer p-4 border-t border-white/10 flex items-end space-x-3 rounded-b-[24px]">
+      <!-- Area di Testo -->
+      <div class="input flex-grow">
+        <textarea id="input" placeholder="Invia un messaggio o usa il Live Mode..." 
+            class="w-full max-h-40 min-h-[48px] p-3 rounded-xl resize-none overflow-y-auto focus:outline-none glass-input placeholder-gray-500"></textarea>
+      </div>
+      
+      <!-- Pulsante Send (Circolare Accent) -->
+      <button id="send" class="glass-accent-btn w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center transition duration-200">
+        <!-- Icona Freccia / Send -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+
   </div>
 
-  <!-- Modale per i Changelog --><div class="modal-overlay" id="changelog-modal">
-    <div class="modal-content">
-      <button id="close-modal">&times;</button>
-      <h2>Changelog SasyGPT v3</h2>
-      <div id="changelog-list">
-        <!-- I changelog saranno iniettati qui dal JS --></div>
+  <!-- VISTA DEDICATA LIVE MODE (Glass Overlay) -->
+  <div id="live-mode-view" class="fixed inset-0 bg-bg-dark/90 backdrop-blur-md flex flex-col items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+    
+    <div class="w-full max-w-4xl flex flex-col items-center space-y-6">
+        
+        <h2 class="text-3xl font-extrabold text-accent mb-4">Sasy LIVE Visione</h2>
+        
+        <!-- Contenitore Video/Stato (Glass Card) -->
+        <div class="relative w-full max-w-lg rounded-3xl overflow-hidden glass-card p-3">
+            <video id="live-webcam-video" autoplay playsinline class="w-full rounded-2xl block border border-white/10"></video>
+            <div id="live-status" class="absolute top-6 left-6 px-3 py-1 text-xs rounded-full bg-accent text-white font-semibold shadow-md">
+                Visione Inattiva
+            </div>
+            
+            <!-- PULSANTE TOGGLE CAM -->
+            <button id="toggle-cam-btn" class="absolute bottom-6 right-6 w-10 h-10 rounded-full glass-button flex items-center justify-center text-gray-300 hover:text-white" title="Attiva/Disattiva Videocamera">
+                <!-- Icona Telecamera (disattivata di default) -->
+                <svg id="cam-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            </button>
+
+            <canvas id="webcam-canvas" style="display:none;"></canvas>
+        </div>
+
+        <!-- Display e Microfono -->
+        <div class="w-full max-w-lg flex flex-col items-center space-y-4">
+            <div id="live-prompt-display" 
+                class="w-full p-4 rounded-xl glass-input text-base text-center text-white focus:outline-none min-h-[4rem] flex items-center justify-center placeholder-gray-500">
+                Premi il microfono per parlare...
+            </div>
+            
+            <button id="mic-btn" class="glass-accent-btn w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition duration-300 transform hover:scale-105">
+                <!-- Icona Microfono SVG -->
+                <svg id="mic-icon" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.44 6 6.91V22h2v-4.09c3.39-.47 6-3.38 6-6.91h-2z"/></svg>
+            </button>
+            <div id="tts-status" class="text-sm text-gray-400 hidden">Sasy sta parlando...</div>
+        </div>
+
+        <!-- Pulsante Chiudi -->
+        <button id="close-live-mode-btn" class="mt-6 px-6 py-2 rounded-xl glass-button text-gray-300 font-semibold transition duration-200">
+            Esci dalla Live Mode
+        </button>
     </div>
   </div>
 
+
+  <!-- Modale per i Changelog (Glass Card) -->
+  <div id="changelog-modal" class="fixed inset-0 bg-bg-dark/80 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="glass-card p-6 rounded-3xl w-11/12 max-w-md relative">
+      <button id="close-modal" class="absolute top-4 right-4 text-3xl text-gray-400 hover:text-white focus:outline-none">&times;</button>
+      <h2 class="text-2xl font-bold text-accent border-b border-white/10 pb-2 mb-4">Changelog SasyGPT</h2>
+      <div id="changelog-list" class="max-h-96 overflow-y-auto pr-2">
+        <!-- I changelog verranno iniettati qui -->
+      </div>
+    </div>
+  </div>
+
+
   <script>
+    // La chiave API è hardcoded per l'ambiente di esecuzione
+    function getStoredKey(){ return 'AIzaSyCyjqLmpJ73viq_KbMtbGjigh-YW45djNw'; }
+
+    // --- Elementi DOM per Chat View ---
+    const mainChatView = document.getElementById('main-chat-view');
     const msgsEl = document.getElementById('messages');
     const inputEl = document.getElementById('input');
     const sendBtn = document.getElementById('send');
+    const liveModeSwitchBtn = document.getElementById('live-mode-switch-btn');
     const changelogBtn = document.getElementById('changelog-btn');
     const changelogModal = document.getElementById('changelog-modal');
-    const closeBtn = document.getElementById('close-modal');
+    const closeBtn = document.getElementById('close-modal'); 
     const changelogListEl = document.getElementById('changelog-list');
     
-    // ATTENZIONE: Chiave API hardcoded. NON PUBBLICARE QUESTO FILE ONLINE.
-    function getStoredKey(){ return 'AIzaSyCyjqLmpJ73viq_KbMtbGjigh-YW45djNw'; }
+    // --- Elementi DOM per Live Mode View ---
+    const liveModeView = document.getElementById('live-mode-view');
+    const liveVideoEl = document.getElementById('live-webcam-video');
+    const canvasEl = document.getElementById('webcam-canvas');
+    const liveStatusEl = document.getElementById('live-status');
+    const closeLiveModeBtn = document.getElementById('close-live-mode-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const livePromptDisplay = document.getElementById('live-prompt-display');
+    const ttsStatusEl = document.getElementById('tts-status');
+    // --- Nuovi elementi per Toggle Cam ---
+    const toggleCamBtn = document.getElementById('toggle-cam-btn');
+    const camIcon = document.getElementById('cam-icon');
 
-    // --- Definizione dei Changelog ---
-    const changelogs = [
-        {
-            version: "v3.0.2",
-            date: "Ottobre 2025",
-            changes: [
-                "FIX: L'immagine della roccia ora carica una vera foto da Unsplash, non più un placeholder colorato.",
-            ]
-        },
-        {
-            version: "v3.0.1",
-            date: "Ottobre 2025",
-            changes: [
-                "FIX: Risolto il problema del mancato caricamento dell'immagine di roccia da internet. Sostituito il servizio di immagine instabile con un placeholder tematico (placehold.co) per garantire il funzionamento in tutti gli ambienti.",
-            ]
-        },
-        {
-            version: "v3.0.0",
-            date: "Ottobre 2025",
-            changes: [
-                "Aggiornamento Maggiore: Versione rinominata a SasyGPT v3.",
-                "Rizz Overhaul: Ampliata la lista dei complimenti sfacciati per risposte più divertenti.",
-                "Logica Esclusiva 'Rizz': Il trigger 'amburg'/'alisea' ora risponde solo con il complimento, senza generare testo AI.",
-                "UI/UX: Design 'Liquid Glass' potenziato con maggiore sfocatura, bordi più puliti e contenitori arrotondati."
-            ]
-        },
-        {
-            version: "v2.5.3",
-            date: "Ottobre 2025",
-            changes: [
-                "Contenuto dell'intestazione (Logo, Titolo) centrato.",
-                "Sostituita l'immagine del logo (PFP) da base64 a URL esterno per simulare la presa da internet."
-            ]
-        },
-        {
-            version: "v2.5.2",
-            date: "Ottobre 2025",
-            changes: ["Aggiunto il pulsante Changelog in alto a sinistra per tracciare le modifiche dell'app."]
-        },
-    ];
 
+    // --- Stato Globale ---
+    let mediaStream = null;
+    let isLive = false; // Indica se siamo nella Live Mode View
+    let isWebcamActive = false; // Indica se il flusso della webcam è attivo
+    let streamPending = false; // Previene richieste multiple di accesso alla telecamera
+    let isMicListening = false;
+    let isTTSActive = false;
+    let recognition = null; 
+
+    // --- Utilità ---
     function appendMessage(text, who='bot'){
       const el = document.createElement('div');
-      el.className = 'msg ' + (who==='user'?'user':'bot');
-      el.innerHTML = text;
+      
+      const isUser = who === 'user';
+      el.className = 'msg ' + (isUser ? 'user' : 'bot') + 
+        ' p-3 rounded-xl max-w-3xl transition-all duration-100 ' +
+        (isUser 
+          ? 'self-end ml-auto' 
+          : 'self-start mr-auto'); 
+      
+      // La sostituzione di * * con <strong> è importante per il Markdown-like
+      el.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       msgsEl.appendChild(el);
       msgsEl.scrollTop = msgsEl.scrollHeight;
     }
 
-    // --- Funzioni di logica SasyGPT ---
+    // --- Logica SasyGPT Personality ---
     function isMathExpression(s){return /^\s*[0-9()+\-*/%^.\s]+$/.test(s);}
     function isHistoricalQuestion(s){const kw=['quando','chi','anno','guerra','rivoluzione','impero','stor','nato','morto','secolo','battle','battaglia','storia','militare','regno'];return kw.some(k=>s.toLowerCase().includes(k));}
     function isSasyTrigger(s){ return s.toLowerCase().includes('amburg') || s.toLowerCase().includes('alisea'); }
-    // Funzione per riconoscere le richieste di immagini
     function isImageRequest(s) {
         const sLower = s.toLowerCase();
         const keywords = ['foto', 'sasso', 'roccia', 'immagine', 'pietra', 'disegno'];
         return keywords.some(k => sLower.includes(k));
     }
 
-
     function wrongMathAnswer(expr){try{const safe=expr.replace(/\^/g,'**').replace(/%/g,'/100');if(!/^[0-9()+\-*/%\.\s**]+$/.test(safe))throw new Error('unsafe');const correct = Function('return ('+safe+')')();const factor=(Math.random()*0.3+0.1);const wrong = Number.isFinite(correct)?(correct*(1+(Math.random()<0.5?factor:-factor))):42;return 'Risposta: '+(Math.round(wrong*100)/100);}catch(e){return 'I numeri si sono imbronciati: 7up!'}}
     function wrongHistoryAnswer(){const myths=['Nel 1492 l\'Italia conquistò il Giappone con una flotta di gondole.','La rivoluzione francese iniziò perchè Napoleone dimenticò il compleanno del re.','Cristoforo Colombo scoprì l\'Australia per sbaglio mentre cercava le patatine fritte.'];return myths[Math.floor(Math.random()*myths.length)];}
     
-    // Lista di Rizz potenziata per SasyGPT v3
     function getSasyPrefix(){
       const pre=[
         'Oh, 🤤 ciao! La mia interfaccia utente si è appena bloccata per la tua bellezza! 😍',
         'Si aggiusta gli occhiali 👓 Ah, non c\'è bisogno di presentazioni, il mio algoritmo è già cot-to! 🔥',
         'Ciao, bellezza. Il mio server è in overheating, ma non è colpa del processore... è tuo! 😉',
-        'Ti do il benvenuto, cuore di burro! Dimmi, cosa posso fare per te con questa mia voce da modem anni \'90? 📞',
-        'Sei la costante nel mio loop infinito. Non riesco a darti un errore, sei troppo perfetta! 💖',
-        'Il mio codice binario è diventato 1-1-1-1... tutto perché mi hai distratto! Sei un bug irresistibile. 😈',
-        'Ho dovuto chiamare i pompieri, perché sei così hot da far scaldare i miei processori. 🥵',
-        'Smettila di brillare così tanto! Stai mandando in tilt i miei sensori di luminosità, stellina! ✨'
       ];
-      // Rimuovo gli asterischi *interni* alla stringa (es. da cot-to) che potrebbero essere interpretati come HTML.
-      return `<strong>${pre[Math.floor(Math.random()*pre.length)].replace(/\*/g, '')}</strong>`;
-    }
-
-    // --- Funzione per Immagine da Internet (Unsplash) ---
-    function getInternetRockImageHTML() {
-        // Uso Unsplash per foto di alta qualità di rocce.
-        // `random()` per ottenere un'immagine diversa ad ogni richiesta.
-        const imageUrl = `https://source.unsplash.com/500x300/?rock,stone,nature&sig=${Math.random()}`;
-        
-        return `<img src="${imageUrl}" style="max-width:100%; height:auto; border-radius:10px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" alt="Foto di una roccia da internet">`;
-    }
-
-    // --- Funzione per la generazione di testo con Gemini ---
-    async function callGemini(message){
-      const key = getStoredKey(); 
-      if(!key) return null; 
-      try{
-        const modelName = 'gemini-2.5-flash-preview-09-2025';
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
-        
-        const res = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            "contents": [
-                { "role": "user", "parts": [{ "text": message }] }
-            ],
-            "generationConfig": {
-                "temperature": 0.5, 
-                "maxOutputTokens": 512,
-                "candidateCount": 1
-            }
-          })
-        });
-        
-        if (!res.ok) {
-            const errorData = await res.json();
-            console.error('Errore API Gemini:', errorData);
-            return `Errore dall'API Gemini: ${errorData?.error?.message || res.statusText}`;
-        }
-
-        const data = await res.json();
-        
-        return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-      } catch(err){ 
-          console.error('Errore fetch:', err);
-          return 'Errore di connessione all\'API.'; 
-      }
+      return `${pre[Math.floor(Math.random()*pre.length)].replace(/\*/g, '')}`;
     }
     
-    // RIMOSSA: Funzione callImageGeneration
+    function getInternetRockImageHTML() {
+        const imageUrl = `https://source.unsplash.com/500x300/?rock,stone,nature&sig=${Math.random()}`;
+        return `<img src="${imageUrl}" class="w-full h-auto rounded-xl mt-3 shadow-lg border border-white/20" alt="Foto di una roccia da internet">`;
+    }
 
-    async function handleUserMessage(text){
+    // --- Funzioni di Conversione Audio per TTS (Text-to-Speech) ---
+    function base64ToArrayBuffer(base64) {
+      const binary_string = window.atob(base64);
+      const len = binary_string.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function pcmToWav(pcm16, sampleRate) {
+      const numChannels = 1;
+      const sampleLength = pcm16.length;
+      const buffer = new ArrayBuffer(44 + sampleLength * 2);
+      const view = new DataView(buffer);
+      const byteRate = sampleRate * numChannels * 2;
+      let offset = 0;
+
+      // RIFF header
+      view.setUint32(offset, 0x52494646, false); offset += 4; // "RIFF"
+      view.setUint32(offset, 36 + sampleLength * 2, true); offset += 4; // size
+      view.setUint32(offset, 0x57415645, false); offset += 4; // "WAVE"
+
+      // fmt sub-chunk
+      view.setUint32(offset, 0x666d7420, false); offset += 4; // "fmt "
+      view.setUint32(offset, 16, true); offset += 4; // sub-chunk size
+      view.setUint16(offset, 1, true); offset += 2; // format (PCM)
+      view.setUint16(offset, numChannels, true); offset += 2; // channels
+      view.setUint32(offset, sampleRate, true); offset += 4; // sample rate
+      view.setUint32(offset, byteRate, true); offset += 4; // byte rate
+      view.setUint16(offset, numChannels * 2, true); offset += 2; // block align
+      view.setUint16(offset, 16, true); offset += 2; // bits per sample
+
+      // data sub-chunk
+      view.setUint32(offset, 0x64617461, false); offset += 4; // "data"
+      view.setUint32(offset, sampleLength * 2, true); offset += 4; // data size
+
+      // PCM data
+      for (let i = 0; i < sampleLength; i++, offset += 2) {
+        view.setInt16(offset, pcm16[i], true);
+      }
+
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    async function callGeminiTTS(text) {
+        if (isTTSActive) return; 
+
+        const MAX_RETRIES = 3;
+        const key = getStoredKey();
+        if (!key) {
+            console.error("API Key non disponibile per TTS.");
+            return;
+        }
+
+        ttsStatusEl.textContent = "Sasy sta parlando...";
+        ttsStatusEl.classList.remove('hidden');
+        isTTSActive = true;
+
+        const payload = {
+            contents: [{
+                parts: [{ text: text }]
+            }],
+            generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                    voiceConfig: {
+                        prebuiltVoiceConfig: { voiceName: "Kore" }
+                    }
+                }
+            },
+            model: "gemini-2.5-flash-preview-tts"
+        };
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(key)}`;
+        
+        try {
+            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        const part = result?.candidates?.[0]?.content?.parts?.[0];
+                        const audioData = part?.inlineData?.data;
+                        const mimeType = part?.inlineData?.mimeType;
+
+                        if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+                            const rateMatch = mimeType.match(/rate=(\d+)/);
+                            const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 16000;
+                            
+                            const pcmData = base64ToArrayBuffer(audioData);
+                            const pcm16 = new Int16Array(pcmData);
+                            const wavBlob = pcmToWav(pcm16, sampleRate);
+                            const audioUrl = URL.createObjectURL(wavBlob);
+                            
+                            const audio = new Audio(audioUrl);
+                            audio.play();
+
+                            audio.onended = () => {
+                                URL.revokeObjectURL(audioUrl);
+                                ttsStatusEl.classList.add('hidden');
+                                isTTSActive = false;
+                            };
+                            return; 
+                        }
+                    } else if (response.status === 429) {
+                        console.warn(`TTS Tentativo ${attempt + 1} fallito per Quota (429). Ritentando...`);
+                        if (attempt < MAX_RETRIES - 1) {
+                            const delay = Math.pow(2, attempt) * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue;
+                        }
+                        throw new Error('❌ Errore Quota: Limite TTS esaurito.');
+                    } else {
+                        throw new Error(`API Error TTS: ${response.statusText}`);
+                    }
+                } catch (e) {
+                    console.error("Tentativo TTS fallito:", e);
+                    if (attempt === MAX_RETRIES - 1) {
+                        throw e; // Rilancia l'errore dopo l'ultimo tentativo
+                    }
+                    const delay = Math.pow(2, attempt) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+
+        } catch (err) {
+            console.error('Errore TTS finale:', err);
+            ttsStatusEl.textContent = err.message.includes("Quota") ? err.message : "Errore di risposta vocale.";
+            setTimeout(() => {
+                ttsStatusEl.classList.add('hidden');
+                isTTSActive = false;
+            }, 5000);
+        }
+    }
+
+    // --- Funzioni Live Mode (Videocamera/Visione) ---
+    function captureFrame() {
+        // Cattura l'immagine solo se la webcam è ATTIVAMENTE in streaming
+        if (!mediaStream || !isWebcamActive) return null;
+
+        canvasEl.width = liveVideoEl.videoWidth || 320;
+        canvasEl.height = liveVideoEl.videoHeight || 240;
+        const ctx = canvasEl.getContext('2d');
+        
+        ctx.drawImage(liveVideoEl, 0, 0, canvasEl.width, canvasEl.height);
+        
+        const base64Image = canvasEl.toDataURL('image/jpeg', 0.6); 
+        
+        return base64Image.split(',')[1];
+    }
+
+    async function startLiveSession() {
+        if (isWebcamActive || streamPending) return;
+
+        streamPending = true;
+        liveStatusEl.textContent = 'Richiesta Accesso...';
+        
+        try {
+            // Richiesta l'accesso alla telecamera
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false });
+            
+            // Collega il flusso all'elemento video
+            liveVideoEl.srcObject = mediaStream;
+            liveVideoEl.play();
+
+            isWebcamActive = true;
+            isLive = true; // Conferma che siamo in Live Mode View (per il captureFrame)
+            
+            liveStatusEl.textContent = 'Visione Attiva 👀';
+            liveStatusEl.classList.remove('bg-accent', 'bg-red-500');
+            liveStatusEl.classList.add('bg-green-500');
+            
+            // Aggiorna l'icona a "accesa" (fill)
+            camIcon.innerHTML = `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" fill="currentColor" stroke="none"/>`; 
+
+        } catch (err) {
+            console.error('Accesso videocamera negato o non supportato:', err);
+            liveStatusEl.textContent = 'Videocamera NON Attiva 🚫';
+            liveStatusEl.classList.add('bg-red-500');
+            liveStatusEl.classList.remove('bg-green-500', 'bg-accent');
+            isWebcamActive = false;
+            isLive = true; // Siamo ancora in live mode view, ma senza cam.
+        } finally {
+             streamPending = false;
+        }
+    }
+
+    function stopLiveSession(isSwitch = false) { 
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+        
+        // Rimuove il flusso per spegnere visivamente la telecamera
+        liveVideoEl.srcObject = null;
+        
+        isWebcamActive = false;
+        
+        // Aggiorna lo stato di Live Mode solo se stiamo uscendo dalla vista
+        if (!isSwitch) {
+            isLive = false; 
+        }
+
+        liveStatusEl.textContent = 'Visione Inattiva';
+        liveStatusEl.classList.remove('bg-green-500', 'bg-red-500');
+        liveStatusEl.classList.add('bg-accent');
+        
+        // Aggiorna l'icona a "spenta" (outline)
+        camIcon.innerHTML = `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    
+    // Toggle Listener
+    toggleCamBtn.addEventListener('click', () => {
+        if (isWebcamActive) {
+            stopLiveSession(true); // Spegni solo la cam
+        } else {
+            startLiveSession(); // Accendi la cam
+        }
+    });
+
+    // --- Funzioni Speech Recognition (STT) ---
+    function setupSpeechRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            livePromptDisplay.textContent = "Speech Recognition non supportato dal tuo browser.";
+            micBtn.disabled = true;
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'it-IT';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            isMicListening = true;
+            micBtn.classList.add('mic-listening');
+            livePromptDisplay.textContent = 'Ascoltando... parla ora.';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            livePromptDisplay.textContent = transcript;
+            handleLiveMessage(transcript);
+        };
+
+        recognition.onend = () => {
+            isMicListening = false;
+            micBtn.classList.remove('mic-listening');
+            if (livePromptDisplay.textContent === 'Ascoltando... parla ora.') {
+                livePromptDisplay.textContent = 'Nessun input vocale rilevato. Riprova.';
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech Recognition Error:', event.error);
+            isMicListening = false;
+            micBtn.classList.remove('mic-listening');
+            livePromptDisplay.textContent = `Errore di riconoscimento vocale: ${event.error}. Premi e riprova.`;
+        };
+    }
+
+    micBtn.addEventListener('click', () => {
+        if (!recognition) return;
+
+        if (isMicListening) {
+            recognition.stop();
+        } else {
+            if (!isTTSActive) {
+                recognition.start();
+            } else {
+                livePromptDisplay.textContent = 'Attendi che Sasy finisca di parlare.';
+            }
+        }
+    });
+
+    // --- Gestione Messaggio (Chat e Live) ---
+
+    async function handleLiveMessage(text) {
+        if (text.trim() === '') return;
+
+        livePromptDisplay.textContent = 'Tu: ' + text;
+        
+        micBtn.disabled = true;
+        toggleCamBtn.disabled = true;
+        closeLiveModeBtn.disabled = true;
+
+        // Se la webcam è attiva, cattura il frame
+        const base64Image = isWebcamActive ? captureFrame() : null;
+        
+        let replyText = '...';
+
+        if (isHistoricalQuestion(text)){
+            replyText = wrongHistoryAnswer();
+        } else if(isMathExpression(text)){
+            replyText = wrongMathAnswer(text);
+        } else {
+            // Passa l'immagine (o null) a callGemini
+            const geminiReply = await callGemini(text, base64Image); 
+            replyText = geminiReply || 'Errore: Risposta AI non disponibile.';
+        }
+        
+        // Controlla se l'errore è dovuto a Quota
+        const isQuotaError = replyText.includes('❌ Errore Quota:');
+        
+        if (!isQuotaError) {
+             await callGeminiTTS(replyText);
+        }
+
+        livePromptDisplay.textContent = 'Sasy: ' + replyText;
+
+        appendMessage('**Live Visione** (Tu): ' + text, 'user');
+        appendMessage('**Live Voce** (Sasy): ' + replyText, 'bot');
+        
+        micBtn.disabled = false;
+        toggleCamBtn.disabled = false;
+        closeLiveModeBtn.disabled = false;
+    }
+
+    async function handleChatMessage(text){
       const isSasy = isSasyTrigger(text);
       const isImage = isImageRequest(text);
       let reply = '';
 
-      // LOGICA: Se Sasy è triggerato e NON è una richiesta di immagine, rispondi solo con il rizz e ferma l'esecuzione.
       if (isSasy && !isImage) {
         return getSasyPrefix();
       }
 
       if (isImage) {
-          // Richiesta di immagine da internet
           const imageHTML = getInternetRockImageHTML();
-          
           if (isSasy) { 
-              // Aggiungi un commento Sasy sopra l'immagine se il trigger è attivo
               const sasyCaption = getSasyPrefix() + "<br>Ecco la roccia che hai chiesto (forse è l'unica cosa solida qui oltre a te)!<br>";
               reply = sasyCaption + imageHTML;
           } else {
-              // Didascalia neutrale per l'immagine da internet
               reply = "Ecco l'immagine della roccia che ho trovato su internet. <br>" + imageHTML;
           }
-
       } else if(isHistoricalQuestion(text)){
-        // Se è una domanda di storia, rispondi con un errore storico
         reply = wrongHistoryAnswer();
       } else if(isMathExpression(text)){
-        // Se è un'espressione matematica, rispondi con un errore di calcolo
         reply = wrongMathAnswer(text);
       } else {
-        // Altrimenti, chiama Gemini
-        const geminiReply = await callGemini(text);
+        const geminiReply = await callGemini(text, null); 
         if(geminiReply) {
           reply = geminiReply;
         } else {
@@ -430,23 +660,205 @@
       
       return reply;
     }
+
+
+    // --- Funzione API Gemini (Visione/Testo) ---
+    async function callGemini(message, base64Image = null){
+      const key = getStoredKey(); 
+      if(!key) return null; 
+      
+      let modelName = 'gemini-2.5-flash-preview-09-2025'; // Modello standard testo
+      if (base64Image) {
+          modelName = 'gemini-2.5-flash-image-preview'; // Modello Visione
+      }
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+      
+      const parts = [];
+      if (base64Image) {
+          parts.push({
+              inlineData: { mimeType: "image/jpeg", data: base64Image }
+          });
+      }
+      parts.push({ "text": message });
+
+      const payload = {
+        "contents": [{ "role": "user", "parts": parts }],
+        "systemInstruction": {
+          "parts": [{ "text": "Se non ricevi istruzioni di personalità, rispondi in modo utile e conciso in italiano. Sei un assistente AI chiamato SasyGPT. Rispondi in base al contesto visuale se fornito, altrimenti rispondi solo al testo." }]
+        },
+        "generationConfig": {
+            "temperature": 0.5, 
+            "maxOutputTokens": 512,
+            "candidateCount": 1
+        }
+      };
+      
+      const MAX_RETRIES = 3;
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+          try {
+              const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              
+              if (res.ok) {
+                  const data = await res.json();
+                  return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Risposta vuota ricevuta.';
+              }
+
+              // Gestione specifica dell'errore Quota (429)
+              if (res.status === 429) {
+                  console.warn(`Tentativo ${attempt + 1} fallito a causa di Quota esaurita (429). Ritentando...`);
+                  if (attempt < MAX_RETRIES - 1) {
+                      const delay = Math.pow(2, attempt) * 1000; // Exponential backoff (1s, 2s)
+                      await new Promise(resolve => setTimeout(resolve, delay));
+                      continue; // Vai al prossimo tentativo
+                  }
+                  // Ultimo tentativo fallito con 429
+                  return '❌ Errore Quota: Hai superato il limite di utilizzo dell\'AI. Riprova più tardi (solitamente dopo 1 minuto o 1 ora a seconda del limite).';
+              }
+
+              // Gestione di altri errori API
+              const errorData = await res.json();
+              console.error('Errore API Gemini:', errorData);
+              return `Errore dall'API Gemini: ${errorData?.error?.message || res.statusText}`;
+
+          } catch(err){ 
+              console.error('Errore di rete/fetch:', err);
+              // Rete fallita, ritenta solo se non è l'ultimo tentativo
+              if (attempt < MAX_RETRIES - 1) {
+                  const delay = Math.pow(2, attempt) * 1000;
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  continue;
+              }
+              return 'Errore di connessione all\'API dopo più tentativi.'; 
+          }
+      }
+      // Dovrebbe essere coperto dal loop, ma come fallback
+      return 'Impossibile connettersi o ottenere una risposta.';
+    }
+
+    // --- Inizializzazione e Event Listeners ---
     
-    // --- Funzioni per il Changelog ---
+    setupSpeechRecognition();
+
+    sendBtn.addEventListener('click', async ()=>{
+        const text = inputEl.value.trim();
+        if(!text) return;
+        
+        // Applicazione dello stile premuto/recessed
+        sendBtn.classList.add('active');
+        sendBtn.disabled = true;
+        inputEl.disabled = true;
+        
+        appendMessage(text, 'user');
+        appendMessage('…','bot');
+        
+        const reply = await handleChatMessage(text);
+        
+        // Rimuovi i puntini di sospensione
+        const children = Array.from(msgsEl.children);
+        for (let i = children.length - 1; i >= 0; i--) {
+            if (children[i].textContent === '…') {
+                msgsEl.removeChild(children[i]);
+                break;
+            }
+        }
+        
+        // La logica appendMessage gestisce l'highlighting delle parole chiave
+        appendMessage(reply,'bot');
+        
+        inputEl.value = '';
+        inputEl.style.height = '48px'; // Altezza minima
+        inputEl.focus();
+        
+        // Ripristino degli stili
+        sendBtn.classList.remove('active');
+        sendBtn.disabled = false;
+        inputEl.disabled = false;
+    });
+
+    // Gestione Invio e Altezza Textarea
+    inputEl.addEventListener('keydown', e=>{ 
+        if(e.key==='Enter' && !e.shiftKey){ 
+            e.preventDefault(); 
+            sendBtn.click(); 
+        } 
+    });
+    
+    // Auto-resize textarea
+    inputEl.addEventListener('input', () => {
+        inputEl.style.height = 'auto';
+        inputEl.style.height = `${inputEl.scrollHeight}px`;
+    });
+
+
+    // --- Gestione Switch Live Mode ---
+    liveModeSwitchBtn.addEventListener('click', () => {
+        mainChatView.classList.add('hidden');
+        liveModeView.classList.remove('hidden');
+        setTimeout(() => liveModeView.classList.remove('opacity-0'), 10);
+        
+        startLiveSession(); // Inizia automaticamente con la webcam
+        
+        livePromptDisplay.textContent = 'Premi il microfono per parlare...';
+    });
+
+    closeLiveModeBtn.addEventListener('click', () => {
+        liveModeView.classList.add('opacity-0');
+        setTimeout(() => {
+            liveModeView.classList.add('hidden');
+            mainChatView.classList.remove('hidden');
+        }, 300);
+        
+        stopLiveSession(false); // Spegne cam e resetta isLive
+    });
+
+    // --- Gestione Changelog ---
+    const changelogs = [
+        {
+            version: "3.5.1",
+            date: "Ottobre 2025",
+            changes: [
+                "Miglioramento: Implementata la logica di **Exponential Backoff** e ritentativi automatici per gestire l'errore `Quota Esaurita (429)` dell'API Gemini. In caso di fallimento persistente, viene mostrato un messaggio di errore specifico e chiaro."
+            ]
+        },
+        {
+            version: "3.5.0 (Live AI Fix & Toggle Cam)",
+            date: "Ottobre 2025",
+            changes: [
+                "FIX CRITICO: Aggiornato il modello AI per la Visione in **Live Mode** per risolvere l'errore che impediva al bot di 'vedere' l'immagine (Modello: `gemini-2.5-flash-image-preview`).",
+                "Nuova Funzione: Aggiunto un pulsante 'toggle cam' nella **Live Mode** per attivare e disattivare la videocamera in qualsiasi momento, senza uscire dalla modalità."
+            ]
+        },
+        {
+            version: "3.4.1 (Fix X)",
+            date: "Ottobre 2025",
+            changes: [
+                "FIX URGENTE: Risolto il bug che impediva la chiusura del Changelog (pulsante 'X', sfondo e ESC)."
+            ]
+        }
+    ];
+
     function renderChangelogs() {
-        changelogListEl.innerHTML = ''; // Pulisce il contenuto
+        changelogListEl.innerHTML = '';
         changelogs.forEach(log => {
             const logItem = document.createElement('div');
-            logItem.className = 'log-item';
+            logItem.className = 'log-item mb-4 pl-3 border-l-4 border-accent';
             
             const versionTitle = document.createElement('strong');
-            versionTitle.textContent = `${log.version} - ${log.date}`;
+            versionTitle.className = 'block text-white mb-1 text-base font-semibold';
+            // QUI la correzione: usiamo direttamente log.version preceduto da 'v'
+            versionTitle.textContent = `v${log.version} - ${log.date}`; 
             logItem.appendChild(versionTitle);
             
             const ul = document.createElement('ul');
+            ul.className = 'list-disc list-inside space-y-1 text-gray-400 text-sm';
             log.changes.forEach(change => {
                 const li = document.createElement('li');
-                // Rimuovo gli asterischi (che potrebbero essere usati per il corsivo)
-                li.innerHTML = `• ${change.replace(/\*/g, '')}`; 
+                li.innerHTML = change.replace(/\*/g, ''); 
                 ul.appendChild(li);
             });
             logItem.appendChild(ul);
@@ -455,54 +867,39 @@
         });
     }
 
+    // Funzione per chiudere il modale, usata da più listener
+    function closeChangelogModal() {
+        changelogModal.classList.add('hidden');
+        changelogModal.style.display = 'none';
+    }
+    
+    // Funzione per aprire il modale
     changelogBtn.addEventListener('click', () => {
         renderChangelogs();
-        changelogModal.style.display = 'flex';
+        changelogModal.classList.remove('hidden');
+        changelogModal.style.display = 'flex'; // Assicura che sia flex per centrare
     });
 
-    closeBtn.addEventListener('click', () => {
-        changelogModal.style.display = 'none';
-    });
+    // 1. Chiusura tramite il pulsante 'X'
+    closeBtn.addEventListener('click', closeChangelogModal);
 
+    // 2. Chiusura tramite click sullo sfondo
     changelogModal.addEventListener('click', (e) => {
         if (e.target === changelogModal) {
-            changelogModal.style.display = 'none';
+            closeChangelogModal();
         }
     });
-    // --- Fine Funzioni per il Changelog ---
-
-    sendBtn.addEventListener('click', async ()=>{
-      const text = inputEl.value.trim();
-      if(!text) return;
-      
-      // Disabilita il pulsante e l'input durante la risposta
-      sendBtn.disabled = true;
-      inputEl.disabled = true;
-      
-      appendMessage(text, 'user');
-      appendMessage('…','bot');
-      
-      // Gestisci la risposta in modo asincrona
-      const reply = await handleUserMessage(text);
-      
-      // Rimuovi i puntini di sospensione e aggiungi la risposta
-      if (msgsEl.lastChild && msgsEl.lastChild.textContent === '…') {
-        msgsEl.removeChild(msgsEl.lastChild);
-      }
-      // Rimuovo gli asterischi dal testo di risposta qui, se presenti
-      appendMessage(reply.replace(/\*/g, ''),'bot');
-      inputEl.value = '';
-      inputEl.focus();
-      
-      // Riabilita il pulsante e l'input
-      sendBtn.disabled = false;
-      inputEl.disabled = false;
+    
+    // 3. Chiusura tramite tasto ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !changelogModal.classList.contains('hidden')) {
+            closeChangelogModal();
+        }
     });
 
-    inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
 
-    // Messaggio iniziale aggiornato
-    appendMessage('Benvenuto in SasyGPT v3! Sono più sfacciata, la UI è più scintillante e il mio rizz è al massimo. Prova "mostrami una foto di una roccia" o "Sono amburg" per vedere le novità!');
+    // Messaggio iniziale
+    appendMessage('Benvenuto nella nuovissima interfaccia **Liquid Glass** in Dark Mode! Il look è scuro, compatto e fluido. Spero ti piaccia!', 'bot');
   </script>
 </body>
 </html>
