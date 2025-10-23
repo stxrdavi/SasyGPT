@@ -174,13 +174,16 @@
     
     <div class="w-full max-w-4xl flex flex-col items-center space-y-6">
         
-        <h2 class="text-3xl font-extrabold text-accent mb-4">Sasy LIVE Visione</h2>
+        <h2 class="text-3xl font-extrabold text-accent mb-4">Sasy LIVE</h2> <!-- TITOLO GIA' AGGIORNATO -->
         
         <!-- Contenitore Video/Stato (Glass Card) -->
         <div class="relative w-full max-w-lg rounded-3xl overflow-hidden glass-card p-3">
             <video id="live-webcam-video" autoplay playsinline class="w-full rounded-2xl block border border-white/10"></video>
             <div id="live-status" class="absolute top-6 left-6 px-3 py-1 text-xs rounded-full bg-accent text-white font-semibold shadow-md">
                 Visione Inattiva
+            </div>
+            <div id="live-error-msg" class="absolute inset-0 bg-red-800/70 backdrop-blur-sm flex items-center justify-center p-4 text-center text-white font-semibold hidden">
+                Videocamera non trovata. Controlla i permessi o la disponibilità.
             </div>
             
             <!-- PULSANTE TOGGLE CAM -->
@@ -246,11 +249,11 @@
     const liveVideoEl = document.getElementById('live-webcam-video');
     const canvasEl = document.getElementById('webcam-canvas');
     const liveStatusEl = document.getElementById('live-status');
+    const liveErrorMsgEl = document.getElementById('live-error-msg'); // Nuovo elemento per l'errore
     const closeLiveModeBtn = document.getElementById('close-live-mode-btn');
     const micBtn = document.getElementById('mic-btn');
     const livePromptDisplay = document.getElementById('live-prompt-display');
     const ttsStatusEl = document.getElementById('tts-status');
-    // --- Nuovi elementi per Toggle Cam ---
     const toggleCamBtn = document.getElementById('toggle-cam-btn');
     const camIcon = document.getElementById('cam-icon');
 
@@ -469,12 +472,13 @@
     async function startLiveSession() {
         if (isWebcamActive || streamPending) return;
 
+        liveErrorMsgEl.classList.add('hidden'); // Nasconde l'errore precedente
         streamPending = true;
         liveStatusEl.textContent = 'Richiesta Accesso...';
         
         try {
-            // Richiesta l'accesso alla telecamera
-            mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false });
+            // Richiesta l'accesso alla telecamera con vincoli minimi per evitare "Requested device not found"
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             
             // Collega il flusso all'elemento video
             liveVideoEl.srcObject = mediaStream;
@@ -491,12 +495,18 @@
             camIcon.innerHTML = `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" fill="currentColor" stroke="none"/>`; 
 
         } catch (err) {
-            console.error('Accesso videocamera negato o non supportato:', err);
+            console.error('[CONSOLE_ERROR] Accesso videocamera negato o non supportato:', err.message);
+            
+            // Mostra l'errore sullo schermo e disabilita il microfono (il mic è inutile senza cam qui)
             liveStatusEl.textContent = 'Videocamera NON Attiva 🚫';
             liveStatusEl.classList.add('bg-red-500');
             liveStatusEl.classList.remove('bg-green-500', 'bg-accent');
+            
+            liveErrorMsgEl.classList.remove('hidden');
+            liveErrorMsgEl.textContent = 'Videocamera non trovata o accesso negato. Per favore, controlla i permessi del browser e riprova. Puoi comunque usare il microfono per la sola voce.';
+
             isWebcamActive = false;
-            isLive = true; // Siamo ancora in live mode view, ma senza cam.
+            isLive = true; 
         } finally {
              streamPending = false;
         }
@@ -513,6 +523,9 @@
         
         isWebcamActive = false;
         
+        // Rimuove l'eventuale messaggio di errore quando si esce
+        liveErrorMsgEl.classList.add('hidden');
+
         // Aggiorna lo stato di Live Mode solo se stiamo uscendo dalla vista
         if (!isSwitch) {
             isLive = false; 
@@ -626,9 +639,11 @@
 
         livePromptDisplay.textContent = 'Sasy: ' + replyText;
 
-        appendMessage('**Live Visione** (Tu): ' + text, 'user');
-        appendMessage('**Live Voce** (Sasy): ' + replyText, 'bot');
-        
+        // AGGIORNAMENTO RICHIESTO DALL'UTENTE QUI
+        appendMessage('**SasyLive** (Tu): ' + text, 'user');
+        appendMessage('**Sasy** (Bot): ' + replyText, 'bot');
+        // FINE AGGIORNAMENTO
+
         micBtn.disabled = false;
         toggleCamBtn.disabled = false;
         closeLiveModeBtn.disabled = false;
@@ -837,13 +852,6 @@
             changes: [
                 "FIX CRITICO: Aggiornato il modello AI per la Visione in **Live Mode** per risolvere l'errore che impediva al bot di 'vedere' l'immagine (Modello: `gemini-2.5-flash-image-preview`).",
                 "Nuova Funzione: Aggiunto un pulsante 'toggle cam' nella **Live Mode** per attivare e disattivare la videocamera in qualsiasi momento, senza uscire dalla modalità."
-            ]
-        },
-        {
-            version: "3.4.1 (Fix X)",
-            date: "Ottobre 2025",
-            changes: [
-                "FIX URGENTE: Risolto il bug che impediva la chiusura del Changelog (pulsante 'X', sfondo e ESC)."
             ]
         }
     ];
