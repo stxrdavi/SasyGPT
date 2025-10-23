@@ -1,12 +1,12 @@
 # SasyGPT
 
-# SasyGPT v3 e' ora stato rilasciato!
+# SasyGPT v3.5 e' ora stato rilasciato!
 
-## Nuova AI
-Nuova UI piu' clean!
+# NUOVA MODALITA SASYLIVE [ALPHA]
+## Modalita' a stile Gemini Live cioe' che puo sentirti e vedere il tuo schermo rispondendoti con una voce AI
 
-## Rizz Amburg fixato
-Ora non da piu una risposta su amburgo
+## Nuova UI
+Nuova UI ancora piu' clean!
 
 ## Funziona immagine sassi [BETA]
 La funzione ora dovrebbe essere fixata ma e' ancora in beta quindi non funzionera sempre
