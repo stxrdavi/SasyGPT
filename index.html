@@ -128,15 +128,20 @@
                 <div class="text-xs text-gray-400">Modello Gemini • Glass Mode</div>
             </div>
         </div>
-        <div class="flex space-x-3">
-            <!-- Pulsante Live Mode -->
+        <div class="flex space-x-3 items-center">
+            <!-- Pulsante Live Mode con testo -->
              <button id="live-mode-switch-btn" title="Apri Live Mode (Visione/Voce)"
-                class="w-10 h-10 rounded-full glass-button flex items-center justify-center text-accent hover:text-white">
-                <!-- Icona Microfono per Live/Vision -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-2.21 1.79-4 4-4s4 1.79 4 4v6zm-4 7c2.76 0 5-2.24 5-5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H7c0 2.76 2.24 5 5 5v3h2v-3z"/></svg>
+                class="px-3 py-1.5 rounded-xl glass-button flex items-center justify-center text-accent hover:text-white transition duration-200 group">
+                <!-- Contenitore flex per allineare icona e testo -->
+                <div class="flex items-center space-x-2">
+                    <!-- Icona Microfono per Live/Vision -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-2.21 1.79-4 4-4s4 1.79 4 4v6zm-4 7c2.76 0 5-2.24 5-5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H7c0 2.76 2.24 5 5 5v3h2v-3z"/></svg>
+                    <!-- Testo SasyLive -->
+                    <span class="text-sm font-semibold text-white/90 group-hover:text-white">SasyLive</span>
+                </div>
             </button>
             <button id="changelog-btn" title="Mostra Changelog"
-                class="px-3 py-1 text-sm rounded-xl glass-button text-gray-300">Log</button>
+                class="px-3 py-1.5 text-sm rounded-xl glass-button text-gray-300">Log</button>
         </div>
     </header>
 
@@ -286,7 +291,8 @@
         return keywords.some(k => sLower.includes(k));
     }
 
-    function wrongMathAnswer(expr){try{const safe=expr.replace(/\^/g,'**').replace(/%/g,'/100');if(!/^[0-9()+\-*/%\.\s**]+$/.test(safe))throw new Error('unsafe');const correct = Function('return ('+safe+')')();const factor=(Math.random()*0.3+0.1);const wrong = Number.isFinite(correct)?(correct*(1+(Math.random()<0.5?factor:-factor))):42;return 'Risposta: '+(Math.round(wrong*100)/100);}catch(e){return 'I numeri si sono imbronciati: 7up!'}}
+    function wrongMathAnswer(expr){try{const safe=expr.replace(/\^/g,'**').replace(/%/g,'/100');if(!/^[0-9()+\-*/%\.\s**]+$/.test(safe))throw new Error('unsafe');const correct = Function('return ('+safe+')')();const factor=(Math.random()*0.3+0.1);const wrong = Number.isFinite(correct)?(correct*(1+(Math.random()<0.5?factor:-factor))):42;return 'Risposta: '+(Math.round(wrong*100)/100);}catch(e){return 'I numeri si sono imbronciati: 7up!'}
+    }
     function wrongHistoryAnswer(){const myths=['Nel 1492 l\'Italia conquistò il Giappone con una flotta di gondole.','La rivoluzione francese iniziò perchè Napoleone dimenticò il compleanno del re.','Cristoforo Colombo scoprì l\'Australia per sbaglio mentre cercava le patatine fritte.'];return myths[Math.floor(Math.random()*myths.length)];}
     
     function getSasyPrefix(){
@@ -850,7 +856,7 @@
             
             const versionTitle = document.createElement('strong');
             versionTitle.className = 'block text-white mb-1 text-base font-semibold';
-            // QUI la correzione: usiamo direttamente log.version preceduto da 'v'
+            // Formato corretto: vX.X.X
             versionTitle.textContent = `v${log.version} - ${log.date}`; 
             logItem.appendChild(versionTitle);
             
