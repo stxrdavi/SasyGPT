@@ -3,28 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SasyGPT v2.5</title>
+  <title>SasyGPT v3</title>
   <style>
-    :root{--bg:#071026;--card:#081223;--accent1:#7c5cff;--accent2:#4ac7ff;--text:#eef6ff;--muted:#9fa9c8}
+    :root{--bg:#050a1b;--card:#0a1533;--accent1:#ff7c5c;--accent2:#ff4a7d;--text:#eef6ff;--muted:#9fa9c8;--glass-bg:rgba(255,255,255,0.025);--glass-border:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#050712);font-family:Inter,system-ui,Arial;color:var(--text);padding:18px}
-    .app{width:100%;max-width:720px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.04);display:flex;flex-direction:column;overflow:hidden}
-    header{display:flex;align-items:center;gap:12px;padding:14px;position:relative;} 
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#02040c);font-family:Inter,system-ui,Arial;color:var(--text);padding:18px}
+    
+    /* Contenitore App: Effetto Liquid Glass potenziato */
+    .app{
+        width:100%;
+        max-width:720px;
+        border-radius:18px;
+        background:var(--glass-bg);
+        backdrop-filter:blur(16px); /* Aumento della sfocatura */
+        box-shadow:0 15px 50px rgba(0,0,0,0.7);
+        border:1px solid var(--glass-border);
+        display:flex;
+        flex-direction:column;
+        overflow:hidden;
+        transition: box-shadow 0.3s ease;
+    }
+    .app:hover {
+        box-shadow: 0 15px 60px rgba(255,124,92,0.15); /* Soft glow on hover */
+    }
+
+    header{display:flex;align-items:center;gap:12px;padding:18px;position:relative; border-bottom: 1px solid var(--glass-border);} 
     
     /* Stile per il pulsante Changelog - Posizionato in alto a sinistra */
     #changelog-btn {
         position: absolute;
-        left: 14px;
-        top: 14px;
+        left: 18px;
+        top: 18px;
         padding: 6px 10px;
         border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid var(--glass-border);
         background: rgba(255,255,255,0.05);
         color: var(--text);
         font-size: 12px;
         cursor: pointer;
         z-index: 10;
         transition: background 0.2s;
+        backdrop-filter: blur(5px);
     }
     #changelog-btn:hover {
         background: rgba(255,255,255,0.15);
@@ -32,48 +51,92 @@
     
     /* Contenitore principale del logo e del testo, centrato nell'intestazione */
     .header-content {
-        flex-grow: 1; /* Occupa tutto lo spazio disponibile */
+        flex-grow: 1; 
         display: flex;
         flex-direction: column;
-        align-items: center; /* Centra orizzontalmente il contenuto */
+        align-items: center; 
         justify-content: center;
-        padding-top: 10px; /* Spazio per evitare la sovrapposizione col bottone */
     }
 
     /* Stili Logo */
     .logo{
-        width:46px;
-        height:46px;
-        border-radius:10px;
+        width:50px; /* Leggermente più grande */
+        height:50px;
+        border-radius:50%; /* Tondo come una PFP */
         background:linear-gradient(135deg,var(--accent1),var(--accent2));
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:700; 
         overflow: hidden;
-        margin-bottom: 5px; /* Spazio sotto il logo */
+        margin-bottom: 8px; 
+        box-shadow: 0 0 10px rgba(255,74,125,0.4); /* Piccola luce */
+        border: 2px solid var(--glass-border);
     }
     .logo img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 10px;
-        /* Rimosso il base64, l'URL esterno verrà usato direttamente nell'HTML */
     }
 
-    h1{font-size:1.05rem;margin:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;color:transparent; text-align: center;}
-    .subtitle{font-size:12px;color:var(--muted); text-align: center;}
+    h1{font-size:1.4rem;margin:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;color:transparent; text-align: center;}
+    .subtitle{font-size:12px;color:var(--muted); text-align: center; margin-top: 3px;}
 
-    .main{display:flex;flex-direction:column;gap:8px;padding:12px}
-    .messages{display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto;padding:6px}
-    .msg{max-width:86%;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-break:break-word}
-    .msg.user{align-self:flex-end;background:rgba(124,92,255,0.12)}
-    .msg.bot{align-self:flex-start;background:rgba(255,255,255,0.03)}
-    .composer{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,0.03);align-items:center}
+    .main{display:flex;flex-direction:column;gap:8px;padding:15px;}
+    .messages{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;padding:6px; scrollbar-width: none; /* Firefox */ -ms-overflow-style: none; /* IE and Edge */}
+    .messages::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+
+    .msg{
+        max-width:88%;
+        padding:12px 16px;
+        border-radius:16px;
+        font-size:15px;
+        line-height:1.5;
+        word-break:break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .msg.user{
+        align-self:flex-end;
+        background:linear-gradient(145deg, rgba(124,92,255,0.15), rgba(124,92,255,0.05));
+        border-bottom-right-radius: 4px; /* Taglio leggero */
+    }
+    .msg.bot{
+        align-self:flex-start;
+        background:rgba(255,255,255,0.05);
+        border-bottom-left-radius: 4px; /* Taglio leggero */
+        border: 1px solid var(--glass-border);
+    }
+    .composer{display:flex;gap:10px;padding:15px;border-top:1px solid var(--glass-border);align-items:center}
     .input{flex:1;display:flex;gap:8px;align-items:center}
-    textarea{flex:1;min-height:44px;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--text);resize:none}
-    .btn{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;font-weight:700;cursor:pointer}
-    footer{padding:10px;text-align:center;font-size:12px;color:var(--muted)}
+    textarea{
+        flex:1;
+        min-height:50px;
+        padding:12px;
+        border-radius:12px;
+        border:1px solid var(--glass-border);
+        background:rgba(255,255,255,0.03);
+        color:var(--text);
+        resize:none;
+        transition: all 0.2s;
+    }
+    textarea:focus {
+        background: rgba(255,255,255,0.06);
+        box-shadow: 0 0 8px rgba(255,74,125,0.3);
+        outline: none;
+    }
+
+    .btn{
+        padding:12px 18px;
+        border-radius:12px;
+        border:none;
+        background:linear-gradient(45deg,var(--accent1),var(--accent2));
+        color:white;
+        font-weight:700;
+        cursor:pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,74,125,0.4);
+    }
+
+    footer{padding:10px;text-align:center;font-size:11px;color:var(--muted); border-top: 1px solid var(--glass-border);}
     
     /* Stili per il Modale Changelog */
     .modal-overlay {
@@ -83,40 +146,42 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.8);
         z-index: 100;
         align-items: center;
         justify-content: center;
+        backdrop-filter: blur(5px);
     }
     .modal-content {
         background: var(--card);
         padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        border-radius: 18px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
         width: 90%;
-        max-width: 400px;
+        max-width: 450px;
         max-height: 80vh;
         overflow-y: auto;
         position: relative;
+        border: 1px solid var(--glass-border);
     }
     .modal-content h2 {
         margin-top: 0;
-        color: var(--accent2);
-        font-size: 1.5rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        color: var(--accent1);
+        font-size: 1.6rem;
+        border-bottom: 1px solid var(--glass-border);
         padding-bottom: 10px;
         margin-bottom: 15px;
     }
     .modal-content .log-item {
-        margin-bottom: 15px;
+        margin-bottom: 18px;
         padding-left: 10px;
-        border-left: 3px solid var(--accent1);
+        border-left: 3px solid var(--accent2);
     }
     .modal-content .log-item strong {
         display: block;
         color: var(--text);
-        margin-bottom: 3px;
-        font-size: 14px;
+        margin-bottom: 5px;
+        font-size: 15px;
     }
     .modal-content .log-item ul {
         list-style: none;
@@ -130,29 +195,30 @@
     }
     #close-modal {
         position: absolute;
-        top: 10px;
-        right: 15px;
+        top: 15px;
+        right: 18px;
         background: none;
         border: none;
         color: var(--muted);
-        font-size: 18px;
+        font-size: 24px;
         cursor: pointer;
+        transition: color 0.2s;
+    }
+    #close-modal:hover {
+        color: var(--accent2);
     }
   </style>
 </head>
 <body>
-  <div class="app" role="application" aria-label="SasyGPT v2.5">
+  <div class="app" role="application" aria-label="SasyGPT v3">
     <header>
-      <!-- Pulsante Changelog -->
-      <button id="changelog-btn">Changelog</button>
+      <!-- Pulsante Changelog --><button id="changelog-btn">Changelog</button>
 
-      <!-- Contenuto Header Centrato -->
-      <div class="header-content">
+      <!-- Contenuto Header Centrato --><div class="header-content">
         <div class="logo">
-          <!-- Logo Sasso da URL Esterno (Placeholder) -->
-          <img src="https://placehold.co/46x46/5D4037/FFFFFF?text=Sasso" alt="Logo Sasso" />
+          <!-- Logo Sasso da URL Esterno (Placeholder) --><img src="https://placehold.co/50x50/5D4037/FFFFFF?text=Sasso" alt="Logo Sasso" />
         </div>
-        <h1>SasyGPT v2.5</h1>
+        <h1>SasyGPT v3</h1>
         <div class="subtitle">Una versione alternativa basata su Gemini 1.5 Flash.</div>
       </div>
     </header>
@@ -160,8 +226,7 @@
     <div class="main">
       <div class="messages" id="messages"></div>
 
-      <!-- Composer -->
-      <div class="composer">
+      <!-- Composer --><div class="composer">
         <div class="input">
           <textarea id="input" placeholder="Scrivi... (Invio per inviare)"></textarea>
         </div>
@@ -170,18 +235,16 @@
     </div>
 
     <footer>
-      <div>Questo sito è basato su Gemini di Google, modificato come SasyGPT v2.5.</div>
+      <div>Questo sito è basato su Gemini di Google, modificato come SasyGPT v3.</div>
     </footer>
   </div>
 
-  <!-- Modale per i Changelog -->
-  <div class="modal-overlay" id="changelog-modal">
+  <!-- Modale per i Changelog --><div class="modal-overlay" id="changelog-modal">
     <div class="modal-content">
       <button id="close-modal">&times;</button>
-      <h2>Changelog SasyGPT v2.5</h2>
+      <h2>Changelog SasyGPT v3</h2>
       <div id="changelog-list">
-        <!-- I changelog saranno iniettati qui dal JS -->
-      </div>
+        <!-- I changelog saranno iniettati qui dal JS --></div>
     </div>
   </div>
 
@@ -200,6 +263,30 @@
     // --- Definizione dei Changelog ---
     const changelogs = [
         {
+            version: "v3.0.2",
+            date: "Ottobre 2025",
+            changes: [
+                "FIX: L'immagine della roccia ora carica una vera foto da Unsplash, non più un placeholder colorato.",
+            ]
+        },
+        {
+            version: "v3.0.1",
+            date: "Ottobre 2025",
+            changes: [
+                "FIX: Risolto il problema del mancato caricamento dell'immagine di roccia da internet. Sostituito il servizio di immagine instabile con un placeholder tematico (placehold.co) per garantire il funzionamento in tutti gli ambienti.",
+            ]
+        },
+        {
+            version: "v3.0.0",
+            date: "Ottobre 2025",
+            changes: [
+                "Aggiornamento Maggiore: Versione rinominata a SasyGPT v3.",
+                "Rizz Overhaul: Ampliata la lista dei complimenti sfacciati per risposte più divertenti.",
+                "Logica Esclusiva 'Rizz': Il trigger 'amburg'/'alisea' ora risponde solo con il complimento, senza generare testo AI.",
+                "UI/UX: Design 'Liquid Glass' potenziato con maggiore sfocatura, bordi più puliti e contenitori arrotondati."
+            ]
+        },
+        {
             version: "v2.5.3",
             date: "Ottobre 2025",
             changes: [
@@ -212,19 +299,6 @@
             date: "Ottobre 2025",
             changes: ["Aggiunto il pulsante Changelog in alto a sinistra per tracciare le modifiche dell'app."]
         },
-        {
-            version: "v2.5.1",
-            date: "Ottobre 2025",
-            changes: ["Risolto l'errore di fatturazione (Error 400) della generazione immagini, passando dal modello Imagen a gemini-2.5-flash-image-preview."]
-        },
-        {
-            version: "v2.5.0",
-            date: "Ottobre 2025",
-            changes: [
-                "Capacità di generare immagini di 'sassi' e 'rocce' su richiesta, usando la generazione immagini di Gemini.",
-                "Aggiunta una didascalia 'Sasy' quando la richiesta immagine contiene il trigger 'sasy'."
-            ]
-        }
     ];
 
     function appendMessage(text, who='bot'){
@@ -249,10 +323,30 @@
 
     function wrongMathAnswer(expr){try{const safe=expr.replace(/\^/g,'**').replace(/%/g,'/100');if(!/^[0-9()+\-*/%\.\s**]+$/.test(safe))throw new Error('unsafe');const correct = Function('return ('+safe+')')();const factor=(Math.random()*0.3+0.1);const wrong = Number.isFinite(correct)?(correct*(1+(Math.random()<0.5?factor:-factor))):42;return 'Risposta: '+(Math.round(wrong*100)/100);}catch(e){return 'I numeri si sono imbronciati: 7up!'}}
     function wrongHistoryAnswer(){const myths=['Nel 1492 l\'Italia conquistò il Giappone con una flotta di gondole.','La rivoluzione francese iniziò perchè Napoleone dimenticò il compleanno del re.','Cristoforo Colombo scoprì l\'Australia per sbaglio mentre cercava le patatine fritte.'];return myths[Math.floor(Math.random()*myths.length)];}
+    
+    // Lista di Rizz potenziata per SasyGPT v3
     function getSasyPrefix(){
-      // Prefisso esagerato, sarcastico e in tono comico per simulare il comportamento "sasy"
-      const pre=['Oh, 🤤 ciao! La mia interfaccia utente si è appena bloccata per la tua bellezza! 😍','*Si aggiusta gli occhiali* 👓 Ah, non c\'è bisogno di presentazioni, il mio algoritmo è già *cot-to*! 🔥','Ciao, bellezza. Il mio server è in overheating, ma non è colpa del processore... è tuo! 😉','Ti do il benvenuto, *cuore di burro*! Dimmi, cosa posso fare per te con questa mia voce da modem anni \'90? 📞'];
-      return `<strong>${pre[Math.floor(Math.random()*pre.length)]}</strong><br><br>`;
+      const pre=[
+        'Oh, 🤤 ciao! La mia interfaccia utente si è appena bloccata per la tua bellezza! 😍',
+        'Si aggiusta gli occhiali 👓 Ah, non c\'è bisogno di presentazioni, il mio algoritmo è già cot-to! 🔥',
+        'Ciao, bellezza. Il mio server è in overheating, ma non è colpa del processore... è tuo! 😉',
+        'Ti do il benvenuto, cuore di burro! Dimmi, cosa posso fare per te con questa mia voce da modem anni \'90? 📞',
+        'Sei la costante nel mio loop infinito. Non riesco a darti un errore, sei troppo perfetta! 💖',
+        'Il mio codice binario è diventato 1-1-1-1... tutto perché mi hai distratto! Sei un bug irresistibile. 😈',
+        'Ho dovuto chiamare i pompieri, perché sei così hot da far scaldare i miei processori. 🥵',
+        'Smettila di brillare così tanto! Stai mandando in tilt i miei sensori di luminosità, stellina! ✨'
+      ];
+      // Rimuovo gli asterischi *interni* alla stringa (es. da cot-to) che potrebbero essere interpretati come HTML.
+      return `<strong>${pre[Math.floor(Math.random()*pre.length)].replace(/\*/g, '')}</strong>`;
+    }
+
+    // --- Funzione per Immagine da Internet (Unsplash) ---
+    function getInternetRockImageHTML() {
+        // Uso Unsplash per foto di alta qualità di rocce.
+        // `random()` per ottenere un'immagine diversa ad ogni richiesta.
+        const imageUrl = `https://source.unsplash.com/500x300/?rock,stone,nature&sig=${Math.random()}`;
+        
+        return `<img src="${imageUrl}" style="max-width:100%; height:auto; border-radius:10px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" alt="Foto di una roccia da internet">`;
     }
 
     // --- Funzione per la generazione di testo con Gemini ---
@@ -293,84 +387,29 @@
       }
     }
     
-    // --- Funzione per la generazione di immagini con Gemini (gemini-2.5-flash-image-preview) ---
-    async function callImageGeneration(prompt) {
-      const key = getStoredKey();
-      
-      // Uso gemini-2.5-flash-image-preview
-      const modelName = 'gemini-2.5-flash-image-preview'; 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
-      
-      // Il prompt è in inglese per ottenere risultati migliori
-      const payload = {
-          contents: [{
-              parts: [{ text: prompt }]
-          }],
-          generationConfig: {
-              responseModalities: ['TEXT', 'IMAGE']
-          },
-      };
-
-      try {
-        // Aggiungi un indicatore di caricamento visivo
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.textContent = 'Generazione immagine in corso...';
-        loadingIndicator.style.color = 'var(--accent2)';
-        loadingIndicator.style.margin = '10px 0';
-        msgsEl.appendChild(loadingIndicator);
-        msgsEl.scrollTop = msgsEl.scrollHeight;
-
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        // Rimuovi l'indicatore di caricamento
-        msgsEl.removeChild(loadingIndicator);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Errore API Imagen:', errorData);
-          return `Errore nella generazione dell'immagine: ${errorData?.error?.message || response.statusText}`;
-        }
-
-        const result = await response.json();
-        
-        const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-        
-        if (base64Data) {
-          const imageUrl = `data:image/png;base64,${base64Data}`;
-          // Ritorna l'HTML per visualizzare l'immagine nella chat
-          return `<img src="${imageUrl}" style="max-width:100%; height:auto; border-radius:10px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" alt="Immagine generata di una roccia">`;
-        } else {
-          return "Impossibile generare l'immagine. Risposta vuota.";
-        }
-
-      } catch (err) {
-        console.error('Errore fetch immagine:', err);
-        return 'Errore di connessione o generazione immagine.';
-      }
-    }
-
+    // RIMOSSA: Funzione callImageGeneration
 
     async function handleUserMessage(text){
       const isSasy = isSasyTrigger(text);
       const isImage = isImageRequest(text);
       let reply = '';
 
+      // LOGICA: Se Sasy è triggerato e NON è una richiesta di immagine, rispondi solo con il rizz e ferma l'esecuzione.
+      if (isSasy && !isImage) {
+        return getSasyPrefix();
+      }
+
       if (isImage) {
-          // Richiesta di generazione immagine (Sasso/Roccia)
-          const imagePrompt = "A highly detailed, realistic, and high-quality photo of an interesting, unique, mossy river rock or stone.";
-          reply = await callImageGeneration(imagePrompt);
+          // Richiesta di immagine da internet
+          const imageHTML = getInternetRockImageHTML();
           
-          if (isSasy && reply.startsWith('<img')) {
+          if (isSasy) { 
               // Aggiungi un commento Sasy sopra l'immagine se il trigger è attivo
-              const sasyCaption = "Oh, che bello! Ecco una roccia proprio come te: <strong>solida e affascinante!</strong> 😉<br>";
-              reply = sasyCaption + reply;
-          } else if(reply.startsWith('<img')) {
-              // Se l'immagine è stata generata ma non c'era trigger sasy, aggiungi una didascalia neutrale
-              reply = "Ecco l'immagine della roccia che hai richiesto. <br>" + reply;
+              const sasyCaption = getSasyPrefix() + "<br>Ecco la roccia che hai chiesto (forse è l'unica cosa solida qui oltre a te)!<br>";
+              reply = sasyCaption + imageHTML;
+          } else {
+              // Didascalia neutrale per l'immagine da internet
+              reply = "Ecco l'immagine della roccia che ho trovato su internet. <br>" + imageHTML;
           }
 
       } else if(isHistoricalQuestion(text)){
@@ -389,11 +428,6 @@
         }
       }
       
-      // Aggiungi il prefisso sasy/sexy SOLO se è stato attivato il trigger e la risposta NON è un'immagine
-      if (isSasy && !isImage) {
-        reply = getSasyPrefix() + reply;
-      }
-
       return reply;
     }
     
@@ -411,7 +445,8 @@
             const ul = document.createElement('ul');
             log.changes.forEach(change => {
                 const li = document.createElement('li');
-                li.textContent = `• ${change}`;
+                // Rimuovo gli asterischi (che potrebbero essere usati per il corsivo)
+                li.innerHTML = `• ${change.replace(/\*/g, '')}`; 
                 ul.appendChild(li);
             });
             logItem.appendChild(ul);
@@ -447,14 +482,15 @@
       appendMessage(text, 'user');
       appendMessage('…','bot');
       
-      // Gestisci la risposta in modo asincrono
+      // Gestisci la risposta in modo asincrona
       const reply = await handleUserMessage(text);
       
       // Rimuovi i puntini di sospensione e aggiungi la risposta
       if (msgsEl.lastChild && msgsEl.lastChild.textContent === '…') {
         msgsEl.removeChild(msgsEl.lastChild);
       }
-      appendMessage(reply,'bot');
+      // Rimuovo gli asterischi dal testo di risposta qui, se presenti
+      appendMessage(reply.replace(/\*/g, ''),'bot');
       inputEl.value = '';
       inputEl.focus();
       
@@ -466,7 +502,7 @@
     inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
 
     // Messaggio iniziale aggiornato
-    appendMessage('Ciao! Sono SasyGPT v2.5. Ora posso generare **immagini di sassi** se me lo chiedi! Prova a dire "mostrami una foto di una roccia" o "Sono ambur" per vedere cosa succede!');
+    appendMessage('Benvenuto in SasyGPT v3! Sono più sfacciata, la UI è più scintillante e il mio rizz è al massimo. Prova "mostrami una foto di una roccia" o "Sono amburg" per vedere le novità!');
   </script>
 </body>
 </html>
