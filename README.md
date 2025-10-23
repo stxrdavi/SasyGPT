@@ -1,13 +1,12 @@
 # SasyGPT
 
-# SasyGPT v2.5 e' ora stato rilasciato!
+# SasyGPT v3 e' ora stato rilasciato!
 
-## Ora basato su Gemini di Google!
-Ora e' interamente basato su Gemini e non su ChatGPT con api dall'utente.
-Quindi ora e' tutto gratis.
+## Nuova AI
+Nuova UI piu' clean!
 
-## Aggiunto il changelog!
-Vedi le modifiche fatte al sito
+## Rizz Amburg fixato
+Ora non da piu una risposta su amburgo
 
-## Aggiunta la possibilita' di generare immagini
-Ora puoi generare immagini di sassi con Imagen 4 di Google.
+## Funziona immagine sassi [BETA]
+La funzione ora dovrebbe essere fixata ma e' ancora in beta quindi non funzionera sempre
